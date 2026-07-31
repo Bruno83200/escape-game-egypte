@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L'Héritage d'Anubis - Le Tombeau Perdu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        :root {
+            --gold: #d4af37;
+            --ocre: #b87333;
+            --lapis: #1e3a5f;
+            --panel: rgba(10, 10, 10, 0.4);
+            --text: #e0d5c0;
+        }
+
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            background-color: #000; color: var(--text);
+            font-family: 'Crimson Text', serif;
+            overflow: hidden;
+        }
+
+        #scene-container {
+            position: relative; width: 100vw; height: 100vh; height: 100svh; 
+            background-color: #000; background-size: cover; background-position: center;
+            background-repeat: no-repeat; transition: background-image 0.8s ease-in-out;
+            display: flex; flex-direction: column; justify-content: flex-end;
+            overflow: hidden;
+        }
+
+        #top-bar {
+            position: absolute; top: 0; width: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+            padding: 10px 25px; display: flex; justify-content: space-between; align-items: center;
+            box-sizing: border-box; z-index: 100;
+        }
+        #player-name { font-family: 'Cinzel', serif; color: var(--gold); letter-spacing: 2px; }
+
+        #ui-panel {
+            background: var(--panel); border-top: 2px solid var(--gold);
+            padding: 20px 40px; min-height: 150px;
+            box-shadow: 0 -15px 40px rgba(0,0,0,0.8); z-index: 10;
+            text-align: center; backdrop-filter: blur(4px);
+        }
+        
+        #description-text { font-size: 1.3rem; line-height: 1.4; margin-bottom: 20px; font-style: italic; }
+
+        #choices-grid { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+
+        .btn-game {
+            background: rgba(42, 29, 21, 0.8); color: var(--gold); border: 1px solid var(--gold);
+            padding: 10px 25px; font-family: 'Cinzel', serif; cursor: pointer; transition: 0.3s;
+        }
+        .btn-game:hover { background: var(--ocre); color: white; box-shadow: 0 0 15px var(--gold); }
+
+        #inventory-panel {
+            margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(212, 175, 55, 0.2);
+            font-size: 0.85rem; color: var(--gold); font-family: 'Cinzel', serif; opacity: 0.7;
+        }
+
+        /* MODALE OBJET */
+        .item-modal-content {
+            background: linear-gradient(145deg, #1a1a1a, #000); border: 3px solid var(--gold);
+            width: 90%; max-width: 800px; display: flex; padding: 0; overflow: hidden;
+            box-shadow: 0 0 100px rgba(212, 175, 55, 0.3); animation: modalFadeIn 0.5s ease-out;
+        }
+        .item-modal-left { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px; border-right: 1px solid rgba(212, 175, 55, 0.2); }
+        .item-modal-left img { max-width: 100%; max-height: 200px; filter: drop-shadow(0 0 20px var(--gold)); }
+        .item-modal-right { flex: 1.5; padding: 40px; text-align: left; }
+        
+        @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body>
+
+    <div id="rotate-device">
+        <div class="rotate-content">
+            <p>L'Héritage d'Anubis nécessite le mode paysage.</p>
+        </div>
+    </div>
+
+    <!-- MODALE PARCHERMIN (Papyrus) avec support image -->
+    <div id="custom-modal" class="modal-overlay">
+        <div class="modal-content">
+            <!-- Conteneur pour mettre l'image à gauche et le texte à droite -->
+            <div style="display: flex; align-items: center; gap: 20px; width: 100%;">
+                <img id="modal-illustration" src="" style="display:none; max-width: 150px; border: 1px solid #3d2b1f; filter: sepia(0.5);">
+                <div id="modal-text" style="flex: 1;"></div>
+            </div>
+            
+            <div id="modal-input-area" style="display:none; margin-top:20px;">
+                <input type="text" id="modal-input-field">
+            </div>
+            <button id="modal-btn" class="btn-modal">Continuer</button>
+        </div>
+    </div>
+
+    <!-- MODALE OBJET -->
+    <div id="item-modal" class="modal-overlay" style="display:none;">
+        <div class="item-modal-content">
+            <div class="item-modal-left"><img id="item-modal-img" src=""></div>
+            <div class="item-modal-right">
+                <h2 id="item-modal-title" style="font-family:Cinzel; color:var(--gold);">OBJET TROUVÉ</h2>
+                <div id="item-modal-text" style="font-size:1.2rem; color:white; margin-bottom:20px;"></div>
+                <button id="item-modal-btn" class="btn-game">Ranger dans le sac</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="scene-container">
+        <div id="top-bar">
+            <div id="player-name">Explorateur</div>
+            <button class="btn-game" onclick="logout()" style="padding: 5px 15px; font-size: 0.8rem;">Quitter</button>
+        </div>
+        <div id="ui-panel">
+            <div id="description-text">...</div>
+            <div id="choices-grid"></div>
+            <div id="inventory-panel">SAC D'EXPLORATEUR : <span id="inventory-list">Vide</span></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, updateDoc, collection, setDoc, getDocs, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { firebaseConfig } from "./js/config.js";
+        import { UI } from "./js/ui.js";
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let userData = null;
+        let currentActiveScene = null;
+        let isBusy = false; // Empêche de déclencher une action pendant qu'une autre se résout (évite les sons qui se chevauchent)
+
+        // ==========================================
+        //         SYSTÈME AUDIO CORRIGÉ
+        // ==========================================
+        const sounds = {
+            // --- AMBIANCES (Loop) ---
+            vent_desert: new Audio('assets/audio/vent_desert.mp3'),
+            mystere: new Audio('assets/audio/mystere_ambiance.mp3'),
+            murmures: new Audio('assets/audio/murmures_anciens.mp3'),
+
+            // --- ACTIONS (One-shot) ---
+            success: new Audio('assets/audio/succes_egypte.mp3'),
+            error: new Audio('assets/audio/echec_egypte.mp3'),
+            frotter: new Audio('assets/audio/frottement_verre.mp3'), 
+            lumiere_spark: new Audio('assets/audio/faisceau_lumineux.mp3'),
+            jarre: new Audio('assets/audio/poterie_cassee.mp3'),
+            clic: new Audio('assets/audio/clic_pierre.mp3'),
+            porte_lourde: new Audio('assets/audio/pierre_glisse.mp3'),
+            gravure: new Audio('assets/audio/gravure_pierre.mp3'),
+            declic: new Audio('assets/audio/declic_secret.mp3'),
+            vent_profond: new Audio('assets/audio/vent_souterrain.mp3'),
+            vibration: new Audio('assets/audio/vibration_magique.mp3'),
+            porte_2: new Audio('assets/audio/porte_pierre_2.mp3'),
+            echo_caverne: new Audio('assets/audio/echo_caverne.mp3'),
+            placement_pierre: new Audio('assets/audio/placement_pierre.mp3'),
+            panneau_secret: new Audio('assets/audio/panneau_secret.mp3'),
+            froissement_papyrus: new Audio('assets/audio/froissement_papyrus.mp3'),
+            rouage_code: new Audio('assets/audio/rouage_code.mp3'),
+            trappe_metal: new Audio('assets/audio/trappe_metal.mp3'),
+            choeur_divin: new Audio('assets/audio/choeur_divin.mp3'),
+            activation_magique: new Audio('assets/audio/activation_magique.mp3'),
+            cliquetis_metal: new Audio('assets/audio/cliquetis_metal.mp3'),
+            gong_sacre: new Audio('assets/audio/gong_sacre.mp3'),
+            eau_ruissellement: new Audio('assets/audio/eau_ruissellement.mp3'),
+            remplissage_eau: new Audio('assets/audio/remplissage_eau.mp3'),
+            mecanisme_hydraulique: new Audio('assets/audio/mecanisme_hydraulique.mp3'),
+            vent_interieur_pyramide: new Audio('assets/audio/vent_interieur_pyramide.mp3'),
+            insertion_metal: new Audio('assets/audio/insertion_metal.mp3'),
+            frottement_pierre_lourde: new Audio('assets/audio/frottement_pierre_lourde.mp3'),
+            clic_mecanisme: new Audio('assets/audio/clic_mecanisme.mp3'),
+            mystere_etoiles: new Audio('assets/audio/mystere_etoiles.mp3'),
+            engrenage_pierre: new Audio('assets/audio/engrenage_pierre.mp3'),
+            faisceau_stellaire: new Audio('assets/audio/faisceau_stellaire.mp3'),
+            declic_magique: new Audio('assets/audio/declic_magique.mp3'),
+            murmures_runiques: new Audio('assets/audio/murmures_runiques.mp3'),
+            cliquetis_bijoux: new Audio('assets/audio/cliquetis_bijoux.mp3'),
+            glissement_or: new Audio('assets/audio/glissement_or.mp3'),
+            souffle_tombeau: new Audio('assets/audio/souffle_tombeau.mp3'),
+            cliquetis_or: new Audio('assets/audio/cliquetis_or.mp3'),
+            faisceau_lumineux: new Audio('assets/audio/faisceau_lumineux_2.mp3'),
+            pierre_lourde_ouverture: new Audio('assets/audio/pierre_lourde_ouverture.mp3'),
+            vent_abime: new Audio('assets/audio/vent_abime.mp3'),
+            clic_pierre_precieuse: new Audio('assets/audio/clic_pierre_precieuse.mp3'),
+            mecanisme_final: new Audio('assets/audio/mecanisme_final.mp3'),
+            triomphe_egypte: new Audio('assets/audio/triomphe_egypte.mp3'),
+            vent_victoire: new Audio('assets/audio/vent_victoire.mp3'),
+            pas_pierre: new Audio('assets/audio/pas_pierre.mp3'),
+            porte_soleil: new Audio('assets/audio/porte_soleil.mp3'),
+            victoire_finale: new Audio('assets/audio/victoire_finale.mp3')
+        };
+
+        // Réglages précis des volumes (0.0 à 1.0)
+        sounds.vent_desert.volume = 0.2; // Ambiance discrète
+        if (sounds.mystere) sounds.mystere.volume = 0.25;
+        
+        sounds.success.volume = 0.5;
+        sounds.error.volume = 0.4;
+        sounds.frotter.volume = 0.5;
+        sounds.lumiere_spark.volume = 0.5;
+        sounds.jarre.volume = 0.5;
+        sounds.clic.volume = 0.6;
+        sounds.porte_lourde.volume = 0.7;
+        sounds.murmures.volume = 0.2;       
+        sounds.gravure.volume = 0.4;
+        sounds.declic.volume = 0.5;
+        sounds.vent_profond.volume = 0.2;
+        sounds.vibration.volume = 0.5;
+        sounds.porte_2.volume = 0.7;
+        sounds.echo_caverne.volume = 0.2;
+        sounds.placement_pierre.volume = 0.6;
+        sounds.panneau_secret.volume = 0.7;
+        sounds.froissement_papyrus.volume = 0.5;
+        sounds.rouage_code.volume = 0.5;
+        sounds.trappe_metal.volume = 0.7;
+        sounds.choeur_divin.volume = 0.3;
+        sounds.activation_magique.volume = 0.5;
+        sounds.cliquetis_metal.volume = 0.4;
+        sounds.gong_sacre.volume = 0.6;
+        sounds.eau_ruissellement.volume = 0.3;
+        sounds.remplissage_eau.volume = 0.5;
+        sounds.mecanisme_hydraulique.volume = 0.6;
+        sounds.vent_interieur_pyramide.volume = 0.5;
+        sounds.insertion_metal.volume = 0.5;
+        sounds.frottement_pierre_lourde.volume = 0.6;
+        sounds.clic_mecanisme.volume = 0.6;
+        sounds.mystere_etoiles.volume = 0.4;
+        sounds.engrenage_pierre.volume = 0.5;
+        sounds.faisceau_stellaire.volume = 0.5;
+        sounds.declic_magique.volume = 0.6;
+        sounds.murmures_runiques.volume = 0.5;
+        sounds.cliquetis_bijoux.volume = 0.4;
+        sounds.glissement_or.volume = 0.6;
+        sounds.souffle_tombeau.volume = 0.3;
+        sounds.cliquetis_or.volume = 0.5;
+        sounds.faisceau_lumineux.volume = 0.6;
+        sounds.pierre_lourde_ouverture.volume = 0.7;
+        sounds.vent_abime.volume = 0.4;
+        sounds.clic_pierre_precieuse.volume = 0.5;
+        sounds.mecanisme_final.volume = 0.7;
+        sounds.triomphe_egypte.volume = 0.5;
+        sounds.vent_victoire.volume = 0.3;
+        sounds.pas_pierre.volume = 0.5;
+        sounds.porte_soleil.volume = 0.7;
+        sounds.victoire_finale.volume = 0.4;
+
+
+        /**
+         * Joue un effet sonore ponctuel
+         */
+        function playSound(name) {
+            // On vérifie que le son existe ET n'est pas null avant de le jouer
+            if (sounds[name] && sounds[name] instanceof Audio) {
+                sounds[name].currentTime = 0;
+                sounds[name].play().catch(e => console.warn("Audio bloqué"));
+            }
+        }
+
+        /**
+         * Nettoie une réponse joueur : minuscule, espaces superflus retirés,
+         * ET accents supprimés (pour accepter "scarabée" comme "scarabee").
+         */
+        function normalize(str) {
+            return str
+                .toLowerCase()
+                .trim()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, ""); // supprime les accents
+        }
+
+        /**
+         * Arrête proprement tous les sons d'ambiance qui bouclent
+         */
+        function stopAllAmbiance() {
+            // On coupe automatiquement TOUT son actuellement en boucle,
+            // peu importe le nom : plus besoin de maintenir une liste à jour
+            // à chaque nouvelle zone ajoutée.
+            Object.values(sounds).forEach(s => {
+                if (s.loop) {
+                    s.pause();
+                    s.loop = false;
+                    s.currentTime = 0;
+                }
+            });
+        }
+
+        /**
+         * Coupe TOUS les sons (ambiances + effets ponctuels), sans exception.
+         * Utile juste avant un changement de scène pour ne pas laisser un effet
+         * sonore de l'énigme précédente se terminer par-dessus la nouvelle scène.
+         */
+        function stopAllSounds() {
+            Object.values(sounds).forEach(s => {
+                s.pause();
+                s.currentTime = 0;
+            });
+        }
+
+        // ==========================================
+        //         LOGIQUE DU MOTEUR DE JEU
+        // ==========================================
+
+        const scenes = {
+            "antichambre_sable": {
+                text: "Une dalle s'est effondrée derrière vous. Le silence n'est rompu que par un sifflement de vent. Un piédestal trône au centre, recouvert d'une poussière millénaire.",
+                image: "assets/images/scenes/antichambre_01.webp",
+                ambience: "vent_desert",
+                choices: [
+                    { text: "Examiner le piédestal", action: () => enigmeLentille() }
+                ]
+            },
+            "antichambre_eclairee": {
+                text: "La lumière inonde la pièce. Les hiéroglyphes sur les murs s'éveillent. Une porte massive s'est débloquée au fond de la salle.",
+                image: "assets/images/scenes/antichambre_02.webp",
+                ambience: "mystere",
+                choices: [
+                    { text: "S'approcher du mur éclairé", next: "scarabee_mur" }
+                ]
+            },
+            "scarabee_mur": {
+                text: "Le faisceau de lumière frappe trois encoches circulaires sur une fresque murale représentant le cycle du soleil. Des jarres scellées reposent dans un coin.",
+                image: "assets/images/scenes/scarabee_01.webp",
+                ambience: "mystere",
+                choices: [
+                    { text: "Fouiller les jarres", action: () => fouillerJarres() },
+                    { text: "Placer les scarabées", action: () => resoudreScarabees() }
+                ]
+            },
+            "scarabee_ouvert": {
+                text: "Les scarabées s'emboîtent parfaitement. Dans un grondement de pierre, le mur pivote, révélant un nouveau passage sombre.",
+                image: "assets/images/scenes/scarabee_02.webp",
+                ambience: "vent_desert",
+                choices: [
+                    { text: "Pénétrer dans le couloir", next: "scribes_mur" } 
+                ]
+            },
+            "scribes_mur": {
+                text: "Un murmure semble s'échapper des murs. Devant vous, un cartouche doré isole trois symboles : une Plume, un Roseau et des Ondes d'eau. La Tablette de Traduction dans votre sac devrait vous aider.",
+                image: "assets/images/scenes/scribes_01.webp",
+                ambience: "murmures",
+                choices: [
+                    { text: "Consulter la Tablette", action: () => donnerIndiceScribes() },
+                    { text: "Déchiffrer le mot sacré", action: () => enigmeScribes() }
+                ]
+            },
+            "scribes_ouvert": {
+                text: "Le mécanisme a cédé. Le mur de hiéroglyphes s'est effacé pour révéler l'entrée d'un couloir sombre. Vous sentez que le véritable défi commence ici.",
+                image: "assets/images/scenes/scribes_02.webp",
+                ambience: null,
+                choices: [
+                    { text: "Entrer dans le Couloir des Malédictions", next: "statues_couloir" }
+                ]
+            },
+            "statues_couloir": {
+                text: "Le couloir est bordé de trois gigantesques statues de granit : Sobek le crocodile, Thot l'ibis et Horus le faucon. Une plaque de cuivre au sol dit : 'Le messager du ciel a perdu son guide'.",
+                image: "assets/images/scenes/statues_01.webp",
+                ambience: "vent_profond",
+                choices: [
+                    { text: "Observer les statues", action: () => donnerIndiceStatues() },
+                    { text: "Placer le Sceptre d'Anubis", action: () => enigmeStatues() }
+                ]
+            },
+            "statues_resolu": {
+                text: "Le sceptre vibre violemment dans la main de pierre d'Horus. Dans un fracas lourd, un panneau se dérobe à la base de la statue, libérant le passage vers une nouvelle galerie.",
+                image: "assets/images/scenes/statues_02.webp",
+                ambience: "vent_profond",
+                choices: [
+                    { text: "S'engager dans le passage", next: "labyrinthe_fresques" }
+                ]
+            },
+            "labyrinthe_fresques": {
+                text: "Une fresque immense couvre le mur de calcaire. Elle fourmille de détails représentant la faune du Nil, mais une large brèche au centre défigure l'œuvre. Votre Fragment de Fresque semble correspondre exactement à ce vide.",
+                image: "assets/images/scenes/fresque_01.webp",
+                ambience: "echo_caverne",
+                choices: [
+                    { text: "Lire l'inscription sur le fragment", action: () => donnerIndiceFresque() },
+                    { text: "Replacer le fragment", action: () => enigmeFresque() }
+                ]
+            },
+            "fresque_resolue": {
+                text: "Le fragment s'est scellé parfaitement. Sous la peinture, un panneau a glissé, libérant l'accès à une petite alcôve où repose un papyrus. Vous le ramassez et vous dirigez vers une lourde trappe de bronze au sol un peu plus loin.",
+                image: "assets/images/scenes/fresque_02.webp",
+                ambience: "echo_caverne",
+                choices: [
+                    { text: "S'approcher de la trappe au sol", next: "trappe_papyrus" }
+                ]
+            },
+            "trappe_papyrus": {
+                text: "Une trappe de bronze est scellée dans le dallage. Elle est verrouillée par trois anneaux rotatifs gravés de chiffres anciens. Le papyrus que vous venez de trouver semble être la clé.",
+                image: "assets/images/scenes/trappe_01.webp",
+                ambience: "vent_profond",
+                choices: [
+                    { text: "Déchiffrer le papyrus", action: () => lirePapyrus() },
+                    { text: "Manipuler les anneaux", action: () => enigmeTrappe() }
+                ]
+            },
+            "trappe_ouverte": {
+                text: "Dans un claquement métallique, les verrous se libèrent. La trappe bascule, révélant une statuette d'ibis en jade. Vous la récupérez avant de vous engager dans un escalier qui descend vers une salle baignée d'une lumière dorée.",
+                image: "assets/images/scenes/trappe_02.webp",
+                ambience: "vent_profond",
+                choices: [
+                    { text: "Entrer dans la Salle des Pesées", next: "salle_pesées" }
+                ]
+            },
+            "salle_pesées": {
+                text: "Vous entrez dans la Salle de la Vérité. Une balance monumentale trône au centre. Sur le plateau de gauche, un cœur de pierre. Le plateau de droite attend son contrepoids. Une stèle indique les valeurs des Plumes de Maât.",
+                image: "assets/images/scenes/balance_01.webp",
+                ambience: "choeur_divin",
+                choices: [
+                    { text: "Examiner la stèle des plumes", action: () => donnerIndiceBalance() },
+                    { text: "Déposer l'Ibis de Jade", action: () => activerBalance() }
+                ]
+            },
+            "balance_resolue": {
+                text: "L'équilibre est parfait. Un gong profond résonne dans la salle tandis qu'une porte massive s'ouvre lentement. Vous récupérez le Vase Canope et vous avancez vers une chambre où l'on entend un bruit d'eau courante.",
+                image: "assets/images/scenes/balance_02.webp",
+                ambience: "choeur_divin",
+                choices: [
+                    { text: "Entrer dans la salle du réservoir", next: "reservoir_nil" }
+                ]
+            },
+            "reservoir_nil": {
+                text: "Cette salle abrite un système hydraulique complexe. Deux jarres vides (3L et 5L) sont posées près d'un bassin. Une inscription indique qu'il faut verser une quantité très précise dans le conduit pour activer le mécanisme.",
+                image: "assets/images/scenes/reservoir_01.webp",
+                ambience: "eau_ruissellement",
+                choices: [
+                    { text: "Observer les gravures", action: () => donnerIndiceReservoir() },
+                    { text: "Manipuler les jarres", action: () => enigmeReservoir() }
+                ]
+            },
+            "reservoir_resolu": {
+                text: "L'Ankh de bronze luit entre vos mains. Alors que vous quittez la salle du réservoir, vous arrivez devant une immense rampe ascendante obstruée par un bloc de pierre colossal.",
+                image: "assets/images/scenes/reservoir_02.webp",
+                ambience: "eau_ruissellement",
+                choices: [
+                    { text: "S'approcher de la rampe", next: "rampe_pyramide" }
+                ]
+            },
+            "rampe_pyramide": {
+                text: "Un bloc rectangulaire bloque le passage. Une rampe permet de le faire glisser vers le haut, mais son inclinaison doit être réglée avec précision. Une encoche sur le bloc semble attendre l'Ankh de Bronze.",
+                image: "assets/images/scenes/rampe_01.webp",
+                ambience: "vent_interieur_pyramide",
+                choices: [
+                    { text: "Observer les gravures murales", action: () => donnerIndiceRampe() },
+                    { text: "Insérer l'Ankh et régler l'angle", action: () => enigmeRampe() }
+                ]
+            },
+            "rampe_resolue": {
+                text: "Le bloc atteint le sommet et se verrouille. Derrière la porte dérobée, un escalier en colimaçon s'enfonce dans les profondeurs de la pyramide jusqu'à une salle dont le plafond semble ouvert sur le cosmos.",
+                image: "assets/images/scenes/rampe_02.webp",
+                ambience: "vent_interieur_pyramide",
+                choices: [
+                    { text: "Monter vers l'Observatoire", next: "horloge_stellaire" }
+                ]
+            },
+            "horloge_stellaire": {
+                text: "Vous êtes dans l'Observatoire de la voûte céleste. Des conduits étroits traversent la pierre vers le ciel. Un mécanisme central permet de faire pivoter une carte du ciel gravée dans le basalte.",
+                image: "assets/images/scenes/etoiles_01.webp",
+                ambience: "mystere_etoiles",
+                choices: [
+                    { text: "Consulter la Carte Stellaire", action: () => donnerIndiceHorloge() },
+                    { text: "Actionner le levier de rotation", action: () => enigmeHorloge() }
+                ]
+            },
+            "horloge_resolue": {
+                text: "L'alignement est parfait. Vous saisissez l'Amulette Oudjat. Soudain, un pan de mur au fond de l'observatoire se retire, révélant la chambre funéraire où repose le sarcophage royal, étincelant d'or et de lapis-lazuli.",
+                image: "assets/images/scenes/etoiles_02.webp",
+                ambience: "mystere_etoiles",
+                choices: [
+                    { text: "S'approcher du Sarcophage", next: "code_runes" }
+                ]
+            },
+            "code_runes": {
+                text: "Le sarcophage est scellé par une parure pectorale complexe. Trois joyaux se détachent : ils portent les symboles de l'Ankh, du Disque Solaire et du Scarabée. Une voix semble murmurer un ordre ancestral.",
+                image: "assets/images/scenes/runes_01.webp",
+                ambience: "murmures_runiques",
+                choices: [
+                    { text: "Écouter les murmures (Indice)", action: () => donnerIndiceRunes() },
+                    { text: "Presser les joyaux", action: () => enigmeRunes() }
+                ]
+            },
+            "runes_resolu": {
+                text: "Le Pilier Djed est entre vos mains. Alors que vous contournez le sarcophage pour chercher la sortie, une ombre immense se profile : une statue de pharaon assis, haute de cinq mètres, garde la porte finale. Ses yeux luisent d'une lueur ambre menaçante.",
+                image: "assets/images/scenes/runes_02.webp",
+                ambience: "murmures_runiques",
+                choices: [
+                    { text: "S'approcher de la sortie gardée", next: "porte_gardiens" }
+                ]
+            },
+            "porte_gardiens": {
+                text: "Le colosse de pierre semble vous fixer. Au pied de la statue, des montagnes de pièces d'or et d'objets rituels jonchent le sol. Le Gardien gronde dès que vous faites un pas vers la porte.",
+                image: "assets/images/scenes/gardien_01.webp",
+                ambience: "souffle_tombeau",
+                choices: [
+                    { text: "Fouiller le trésor", action: () => fouillerTresor() },
+                    { text: "Utiliser un objet contre le Gardien", action: () => enigmeGardien() }
+                ]
+            },
+            "gardien_vaincu": {
+                text: "Éblouie, la statue s'est effacée. Vous grimpez un long escalier en colimaçon pour déboucher sur une corniche étroite surplombant un abîme insondable. Au bord du vide, un autel triangulaire en or massif attend les trois clés du royaume.",
+                image: "assets/images/scenes/gardien_02.webp",
+                ambience: "souffle_tombeau",
+                choices: [
+                    { text: "S'approcher de l'autel d'or", next: "sceau_or" }
+                ]
+            },
+            "sceau_or": {
+                text: "L'autel brille d'un éclat divin. Trois encoches profondes sont prêtes à recevoir les artefacts : l'Ankh (Vie), l'Oudjat (Vision) et le Djed (Stabilité). Un texte sacré indique l'ordre de la Genèse.",
+                image: "assets/images/scenes/sceau_01.webp",
+                ambience: "vent_abime",
+                choices: [
+                    { text: "Déchiffrer l'ordre sacré", action: () => donnerIndiceSceau() },
+                    { text: "Placer les artefacts", action: () => enigmeSceau() }
+                ]
+            },
+            "sceau_resolu": {
+                text: "Le pont s'est déployé au-dessus du vide. Vous tenez la Bague du Pharaon. Une porte de pierre massive se dresse de l'autre côté, laissant filtrer quelques rayons de soleil par ses interstices.",
+                image: "assets/images/scenes/sceau_02.webp",
+                ambience: "vent_abime",
+                choices: [
+                    { text: "Traverser le pont de l'abîme", next: "pont_final" }
+                ]
+            },
+            "pont_final": {
+                text: "Le vent s'engouffre dans le couloir. Vous êtes devant l'ultime porte. Un verrou rotatif bloque la sortie. En examinant l'intérieur de la Bague Royale, vous remarquez trois chiffres gravés.",
+                image: "assets/images/scenes/pont_01.webp",
+                ambience: "vent_victoire",
+                choices: [
+                    { text: "Examiner la bague", action: () => donnerIndiceFinal() },
+                    { text: "Entrer le code de sortie", action: () => enigmeFinal() }
+                ]
+            },
+            "victoire": {
+                text: "Vous l'avez fait ! L'air frais du désert emplit vos poumons alors que le soleil se lève sur Gizeh. Votre nom rejoint celui des plus grands archéologues de l'histoire.",
+                image: "assets/images/scenes/victoire_01.webp",
+                ambience: "victoire_finale",
+                choices: [
+                    { text: "Consulter la Liste des Archéologues", action: () => afficherHallOfFame() },
+                    { text: "Recommencer l'aventure", action: () => window.location.reload() }
+                ]
+            },
+
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                userData = userDoc.data() || {};
+                
+                if (!Array.isArray(userData.inventory)) userData.inventory = [];
+                document.getElementById('player-name').innerText = userData.pseudo || "Explorateur";
+                
+                if (currentActiveScene !== userData.currentScene) {
+                    currentActiveScene = userData.currentScene || "antichambre_sable";
+                    renderScene(currentActiveScene);
+                }
+            } else {
+                window.location.href = "index.html";
+            }
+        });
+
+        // --- AJOUT D'OBJET SÉCURISÉ (Évite les doublons) ---
+        async function ajouterObjet(nomObjet) {
+            // 1. On vérifie si l'inventaire existe, sinon on crée un tableau vide
+            if (!Array.isArray(userData.inventory)) {
+                userData.inventory = [];
+            }
+
+            // 2. On vérifie si l'objet est DÉJÀ dans le sac
+            if (!userData.inventory.includes(nomObjet)) {
+                // Il n'y est pas, donc on l'ajoute
+                userData.inventory.push(nomObjet);
+                
+                // 3. On met à jour l'affichage immédiatement
+                document.getElementById('inventory-list').innerText = userData.inventory.join(", ");
+                
+                // 4. On enregistre dans Firebase
+                try {
+                    await updateDoc(doc(db, "users", currentUser.uid), { 
+                        inventory: userData.inventory 
+                    });
+                    console.log(nomObjet + " ajouté avec succès !");
+                } catch (e) {
+                    console.error("Erreur sauvegarde inventaire:", e);
+                }
+            } else {
+                // L'objet est déjà là, on ne fait rien (pas de doublon !)
+                console.log(nomObjet + " est déjà dans l'inventaire.");
+            }
+        }
+
+        function renderScene(sceneId) {
+            const scene = scenes[sceneId];
+            if (!scene) return;
+
+            // --- GESTION DE L'AMBIANCE CORRIGÉE ---
+            if (scene.ambience && sounds[scene.ambience]) {
+                // Si le son demandé n'est pas déjà en train de jouer
+                if (sounds[scene.ambience].paused) {
+                    stopAllAmbiance(); // On arrête tout l'ancien
+                    sounds[scene.ambience].loop = true;
+                    sounds[scene.ambience].play().catch(() => {});
+                }
+            } else {
+                // Si la scène n'a pas d'ambiance, on fait le silence total
+                stopAllAmbiance();
+            }
+
+            document.getElementById('scene-container').style.backgroundImage = `url('${scene.image}')`;
+            document.getElementById('description-text').innerText = scene.text;
+            
+            const grid = document.getElementById('choices-grid');
+            grid.innerHTML = "";
+
+            scene.choices.forEach(choice => {
+                const btn = document.createElement('button');
+                btn.className = "btn-game";
+                btn.innerText = choice.text;
+                btn.onclick = () => {
+                    if (choice.next) changeScene(choice.next);
+                    if (choice.action) choice.action();
+                };
+                grid.appendChild(btn);
+            });
+
+            document.getElementById('inventory-list').innerText = userData.inventory.length > 0 ? userData.inventory.join(", ") : "Vide";
+        }
+
+        async function changeScene(newSceneId) {
+            stopAllSounds(); // On coupe net tout ce qui joue avant d'entrer dans la nouvelle scène
+            currentActiveScene = newSceneId;
+            userData.currentScene = newSceneId;
+            renderScene(newSceneId);
+            await updateDoc(doc(db, "users", currentUser.uid), { currentScene: newSceneId });
+        }
+
+        // ==========================================
+        //         FONCTIONS DES ÉNIGMES
+        // ==========================================
+
+        function enigmeLentille() {
+            if (isBusy) return;
+            UI.message("Une croûte de poussière millénaire recouvre le cristal du piédestal, bloquant le rayon de lumière.", () => {
+                UI.ask("Que faites-vous pour libérer le passage ? (Un verbe à l'infinitif)", async (rep) => {
+                    if (rep.toLowerCase().trim() === "nettoyer" || rep.toLowerCase().trim() === "essuyer") {
+                        isBusy = true;
+                        playSound('frotter');
+                        setTimeout(async () => {
+                            playSound('success');
+                            playSound('lumiere_spark');
+                            
+                            // On utilise notre nouvelle fonction ici
+                            await ajouterObjet("Lentille de Cristal");
+                            
+                            UI.showItem("Lentille de Cristal", "Vous avez poli le cristal. Un rayon de soleil pur jaillit enfin !", "assets/images/items/lens_item.webp", () => {
+                                isBusy = false;
+                                changeScene("antichambre_eclairee");
+                            });
+                        }, 1200);
+                    } else {
+                        playSound('error');
+                        UI.message("Cela ne semble pas suffire à percer l'obscurité.");
+                    }
+                });
+            });
+        }
+
+        function fouillerJarres() {
+            playSound('jarre');
+            UI.message("Parmi les débris de terre cuite, vous découvrez trois talismans : des scarabées de lapis-lazuli, de jaspe rouge et de malachite verte.", async () => {
+                // On utilise notre nouvelle fonction
+                await ajouterObjet("Scarabées de Couleur");
+                renderScene("scarabee_mur");
+            });
+        }
+
+        function resoudreScarabees() {
+            if (isBusy) return;
+            if (!userData.inventory.includes("Scarabées de Couleur")) {
+                playSound('error');
+                UI.message("Les encoches sur le mur sont vides. Vous n'avez rien à y placer.");
+                return;
+            }
+
+            UI.ask("Indice : 'Le Nil (Bleu) fuit le Soleil (Rouge). La Forêt (Vert) veille au centre'. Quel ordre insérez-vous ? (Ex: Jaune-Noir-Blanc)", (rep) => {
+                // Cette ligne nettoie la réponse en enlevant espaces ET tirets pour être plus souple
+                const answer = rep.toLowerCase().replace(/[\s-]/g, ""); 
+                
+                if (answer === "bleuvertrouge") {
+                    isBusy = true;
+                    playSound('clic');
+                    setTimeout(async () => {
+                        playSound('success');
+                        playSound('porte_lourde');
+                        
+                        // On donne la récompense finale
+                        await ajouterObjet("Tablette de Traduction");
+                        
+                        // OPTIONNEL : On retire les scarabées car ils sont sur le mur
+                        userData.inventory = userData.inventory.filter(i => i !== "Scarabées de Couleur");
+                        await updateDoc(doc(db, "users", currentUser.uid), { inventory: userData.inventory });
+
+                        UI.showItem("Tablette de Traduction", "Le mur pivote ! Dans une niche secrète, vous découvrez une tablette hiéroglyphique ancienne.", "assets/images/items/tablette_item.webp", () => {
+                            isBusy = false;
+                            changeScene("scarabee_ouvert");
+                        });
+                    }, 800);
+                } else {
+                    playSound('error');
+                    UI.message("Les pierres vibrent mais rien ne se passe. L'ordre est mauvais.");
+                }
+            });
+        }
+
+        function donnerIndiceScribes() {
+            if (!userData.inventory.includes("Tablette de Traduction")) {
+                UI.message("Vous observez les symboles, mais sans outil de traduction, ils ne sont que des dessins sans sens.");
+                return;
+            }
+            
+            // Correction de la syntaxe et mise en forme
+                UI.message("Les inscriptions sont incomplètes. Vous déchiffrez avec votre tablette :\n\n- Le souffle donne le commencement = V\n- Le roseau relie ce qui commence à ce qui s'achève = ?\n- La source marque la fin = E\n\nQui suis-je ?");
+            }
+
+        function enigmeScribes() {
+            if (isBusy) return;
+            if (!userData.inventory.includes("Tablette de Traduction")) {
+                UI.message("Inutile de tenter un déchiffrage au hasard. Trouvez d'abord de quoi traduire ces signes.");
+                return;
+            }
+
+            UI.ask("Les trois symboles forment un mot sacré. Lequel est-ce ?", async (rep) => {
+                const answer = normalize(rep);
+                
+                if (answer === "vie") {
+                    isBusy = true;
+                    playSound('gravure'); // Bruit de la pierre qu'on gratte
+                    
+                    setTimeout(async () => {
+                        playSound('declic');
+                        playSound('success');
+                        playSound('porte_lourde');
+                        
+                        // Récompense finale de la Zone 1
+                        await ajouterObjet("Sceptre d'Anubis");
+
+                        UI.showItem(
+                            "Sceptre d'Anubis", 
+                            "Le mur pivote ! Dans une niche dissimulée, vous récupérez un sceptre en obsidienne. Son aura semble repousser les ténèbres du couloir qui s'ouvre devant vous.", 
+                            "assets/images/items/sceptre_item.webp", 
+                            () => {
+                                isBusy = false;
+                                changeScene("scribes_ouvert");
+                            }
+                        );
+                    }, 1200);
+                } else {
+                    playSound('error');
+                    UI.message("Les murmures s'intensifient... Ce n'est pas le mot qui libère le passage.");
+                }
+            });
+        }
+
+        function donnerIndiceStatues() {
+            UI.message("Vous examinez les colosses. Sobek (crocodile) règne sur les eaux du Nil. Thot (ibis) est le scribe des dieux. Horus (faucon) est le maître du ciel et des vents.");
+        }
+
+        function enigmeStatues() {
+            if (isBusy) return;
+            // Sécurité : il faut le sceptre
+            if (!userData.inventory.includes("Sceptre d'Anubis")) {
+                UI.message("Vous n'avez aucun objet qui puisse s'insérer dans les mains des statues.");
+                return;
+            }
+
+            UI.ask("Devant quelle statue (Horus, Sobek ou Thot) déposez-vous le Sceptre d'Anubis ?", async (rep) => {
+                const answer = normalize(rep);
+                
+                if (answer === "horus") {
+                    isBusy = true;
+                    playSound('vibration');
+                    
+                    setTimeout(async () => {
+                        playSound('success');
+                        playSound('porte_2');
+                        
+                        // Récompense pour l'énigme suivante (Labyrinthe des fresques)
+                        await ajouterObjet("Fragment de Fresque");
+                        
+                        // On retire le sceptre car il est posé
+                        userData.inventory = userData.inventory.filter(i => i !== "Sceptre d'Anubis");
+                        await updateDoc(doc(db, "users", currentUser.uid), { inventory: userData.inventory });
+
+                        UI.showItem(
+                            "Fragment de Fresque", 
+                            "La statue accepte l'offrande. Sous son socle, vous ramassez un morceau de papyrus déchiré. Il semble provenir d'une fresque géante et sera crucial pour la suite.", 
+                            "assets/images/items/fresque_item.webp", 
+                            () => {
+                                isBusy = false;
+                                changeScene("statues_resolu");
+                            }
+                        );
+                    }, 1200);
+                } else {
+                    playSound('error');
+                    UI.message("Le sceptre ne s'ajuste pas. Une sensation de malaise vous envahit, comme si les dieux vous observaient avec colère.");
+                }
+            });
+        }
+
+        function donnerIndiceFresque() {
+            UI.message("Sur le morceau de pierre que vous tenez, une gravure fine indique : 'Le voyageur des glaces n'a pas sa place sur les rives du Nil.'");
+        }
+
+        function enigmeFresque() {
+            if (isBusy) return;
+            
+            if (!userData.inventory.includes("Fragment de Fresque")) {
+                UI.message("Vous ne pouvez pas réparer la fresque sans le morceau manquant.");
+                return;
+            }
+
+            // On ajoute ici le chemin de l'image en 3ème paramètre
+            UI.ask("Quel animal représenté sur le fragment est l'intrus de cette fresque ?", async (rep) => {
+                const answer = normalize(rep);
+                
+                if (answer === "pingouin" || answer === "manchot") {
+                    // ... (le reste du code de succès ne change pas)
+                    isBusy = true;
+                    playSound('placement_pierre');
+                    
+                    setTimeout(async () => {
+                        playSound('success');
+                        playSound('panneau_secret');
+                        await ajouterObjet("Parchemin de Papyrus");
+                        userData.inventory = userData.inventory.filter(i => i !== "Fragment de Fresque");
+                        await updateDoc(doc(db, "users", currentUser.uid), { inventory: userData.inventory });
+
+                        UI.showItem(
+                            "Parchemin de Papyrus", 
+                            "La fresque est complète ! En s'ouvrant, le mécanisme a révélé un vieux papyrus scellé. Il semble contenir des indications précieuses pour la suite du labyrinthe.", 
+                            "assets/images/items/papyrus_item.webp", 
+                            () => {
+                                isBusy = false;
+                                changeScene("fresque_resolue");
+                            }
+                        );
+                    }, 1200);
+                } else {
+                    playSound('error');
+                    UI.message("Le fragment ne semble pas s'ajuster. Ce n'est pas la réponse attendue par les anciens architectes.");
+                }
+            }, "assets/images/items/fresque_item.webp"); // <--- C'est ici qu'on demande l'image !
+        }  
+
+        function lirePapyrus() {
+            playSound('froissement_papyrus');
+            UI.message("Le papyrus est divisé en trois fragments qui représentent chacun un chiffre. Le premier parle des mains d'un homme, le second d'un œil perdu par Horus, et le dernier des pattes du scarabée. Indiquez ces trois chiffres pour former un nombre (Ex: 000) !");
+        } 
+
+        function enigmeTrappe() {
+            if (isBusy) return;
+            
+            // On vérifie que le joueur a bien ramassé le papyrus (l'item de l'étape 5)
+            if (!userData.inventory.includes("Parchemin de Papyrus")) {
+                UI.message("Un mécanisme à code bloque la trappe. Il vous faut un indice pour le résoudre.");
+                return;
+            }
+
+            // On affiche la superbe image papyrus2_item.webp à côté de la question
+            UI.ask("Alignez les trois anneaux pour former le code de déverrouillage :", async (rep) => {
+                const answer = rep.trim();
+                
+                if (answer === "216") {
+                    isBusy = true;
+                    playSound('rouage_code');
+                    
+                    setTimeout(async () => {
+                        playSound('success');
+                        playSound('trappe_metal');
+                        
+                        // On gagne l'Ibis de Jade
+                        await ajouterObjet("Ibis de Jade");
+                        
+                        // On retire le papyrus qui ne sert plus
+                        userData.inventory = userData.inventory.filter(i => i !== "Parchemin de Papyrus");
+                        await updateDoc(doc(db, "users", currentUser.uid), { inventory: userData.inventory });
+
+                        UI.showItem(
+                            "Ibis de Jade", 
+                            "Félicitations ! Vous avez ouvert la trappe. Cette statuette de Thot, le dieu scribe, dégage une aura de sagesse. Elle sera sûrement utile dans la Salle des Pesées.", 
+                            "assets/images/items/ibis_item.webp", 
+                            () => {
+                                isBusy = false;
+                                changeScene("trappe_ouverte");
+                            }
+                        );
+                    }, 1500);
+                } else {
+                    playSound('error');
+                    UI.message("Les anneaux tournent dans le vide... le code est incorrect.");
+                }
+            }, "assets/images/items/papyrus2_item.webp"); // L'image d'indice que tu as fournie !
+        }
+
+        function donnerIndiceBalance() {
+            // Affiche l'image d'indice que tu as générée (poids_indice.webp)
+            UI.message("La stèle indique les valeurs des plumes : Justice = 20, Sagesse = 10, Honneur = 5, Pureté = 2. Le cœur pèse 42.");
+        }
+
+        function activerBalance() {
+            if (isBusy) return;
+            
+            // Sécurité : il faut l'Ibis de Jade gagné à l'étape précédente
+            if (!userData.inventory.includes("Ibis de Jade")) {
+                UI.message("La balance est verrouillée. Il semble qu'un artefact de Thot soit nécessaire pour l'activer.");
+                return;
+            }
+
+            playSound('activation_magique');
+            UI.message("Vous posez l'Ibis de Jade. Les plateaux se mettent à scintiller. Une voix s'élève : 'Équilibrez le poids du cœur (42) avec les plumes sacrées.'", () => {
+                enigmeBalance();
+            });
+        }
+
+        function enigmeBalance() {
+            if (isBusy) return;
+
+            // On utilise l'illustration poids_indice.webp pour aider le joueur
+            UI.ask("Quelles plumes au minimum déposez-vous pour atteindre 42 ? (Ex: 2 Sagesse, 1, Justice, 1 Pureté)", async (rep) => {
+                const answer = normalize(rep);
+                
+                // On vérifie les deux combinaisons les plus logiques
+                const win1 = answer.includes("2 justice") && answer.includes("1 purete");
+                const win2 = answer.includes("2 justice,") && answer.includes("1 pureté");
+                const win3 = answer.includes("20+20+2"); // Pour les joueurs qui tapent le calcul
+
+                if (win1 || win2 || win3) {
+                    isBusy = true;
+                    playSound('cliquetis_metal');
+                    
+                    setTimeout(async () => {
+                        playSound('success');
+                        playSound('gong_sacre');
+                        
+                        // Récompense : Le Vase Canope
+                        await ajouterObjet("Vase Canope (Hapi)");
+                        
+                        // On retire l'Ibis car il reste sur l'autel
+                        userData.inventory = userData.inventory.filter(i => i !== "Ibis de Jade");
+                        await updateDoc(doc(db, "users", currentUser.uid), { inventory: userData.inventory });
+
+                        UI.showItem(
+                            "Vase Canope (Hapi)", 
+                            "Les plateaux s'alignent au millimètre près. La porte s'ouvre ! Vous récupérez un vase canope en albâtre représentant le dieu Hapi. Il contient peut-être un secret liquide...", 
+                            "assets/images/items/canope_item.webp", 
+                            () => {
+                                isBusy = false;
+                                changeScene("balance_resolue");
+                            }
+                        );
+                    }, 1500);
+                } else {
+                    playSound('error');
+                    UI.message("La balance bascule violemment... Le poids n'est pas juste. Essayez une autre combinaison.");
+                }
+            }, "assets/images/items/poids_indice.webp");
+        } 
+
+        function donnerIndiceReservoir() {
+            UI.message("L'inscription dit : 'La vérité réside dans le reste. Remplis la grande jarre (5L), verse-la dans la petite (3L) jusqu'au bord. Ce qui reste dans la grande est ton premier pas. Recommence pour atteindre le but (4L).'");
+        }
+
+        function enigmeReservoir() {
+            if (isBusy) return;
+            
+            if (!userData.inventory.includes("Vase Canope (Hapi)")) {
+                UI.message("Vous avez besoin d'un récipient sacré pour puiser l'eau du bassin.");
+                return;
+            }
+
+            // On pose une question sur la LOGIQUE de l'opération
+            UI.ask("Après avoir versé la jarre de 5L dans celle de 3L, combien de litres reste-t-il dans la grande jarre, et combien de fois devez-vous verser ce reste dans le mécanisme pour obtenir 4L ?", async (rep) => {
+                
+                const answer = normalize(rep);
+                
+                // On cherche la présence du "2" (le reste) ET du "2" (le nombre de fois)
+                // On utilise une petite ruse pour vérifier si les deux "2" sont dans la réponse
+                const countTwos = (answer.match(/2/g) || []).length;
+                const hasTextLogic = answer.includes("deux") && answer.includes("fois");
+
+                if (countTwos >= 2 || (answer.includes("2") && answer.includes("fois")) || answer.includes("2 et 2")) {
+                    isBusy = true;
+                    playSound('remplissage_eau');
+                    
+                    setTimeout(async () => {
+                        playSound('success');
+                        playSound('mecanisme_hydraulique');
+                        
+                        await ajouterObjet("Ankh de Bronze");
+                        userData.inventory = userData.inventory.filter(i => i !== "Vase Canope (Hapi)");
+                        await updateDoc(doc(db, "users", currentUser.uid), { inventory: userData.inventory });
+
+                        UI.showItem(
+                            "Ankh de Bronze", 
+                            "Exact ! 5L - 3L = 2L. En versant ce reste deux fois, vous obtenez les 4L requis. La pression hydraulique libère enfin l'Ankh de bronze !", 
+                            "assets/images/items/ankh_item.webp", 
+                            () => {
+                                isBusy = false;
+                                changeScene("reservoir_resolu");
+                            }
+                        );
+                    }, 1500);
+                } else {
+                    playSound('error');
+                    UI.message("Le mécanisme ne réagit pas. Relisez bien l'indice : combien reste-t-il dans la jarre de 5L après avoir rempli celle de 3L ? Et combien de fois faut-il ce reste pour faire 4 ?");
+                }
+            }, "assets/images/items/volume_indice.webp");
+        }
+
+        function donnerIndiceRampe() {
+            // Affiche triangle_indice.webp
+            UI.message("L'inscription dit : 'La pierre ne rejoindra les cieux que si la rampe adopte l'angle du Triangle Parfait, celui où les trois côtés sont égaux et où chaque sommet pointe vers la même sagesse.'");
+        }
+
+        function enigmeRampe() {
+            if (isBusy) return;
+            
+            // Vérification de l'Ankh (item étape 8)
+            if (!userData.inventory.includes("Ankh de Bronze")) {
+                UI.message("Le bloc est verrouillé par un mécanisme de bronze. Il vous manque la clé en forme d'Ankh.");
+                return;
+            }
+
+            // On utilise l'illustration triangle_indice.webp
+            UI.ask("À quel angle (en degrés) réglez-vous l'inclinaison de la rampe pour qu'elle corresponde à un triangle aux trois côtés égaux ?", async (rep) => {
+                const answer = rep.trim();
+                
+                // La réponse est 60 (angle d'un triangle équilatéral)
+                if (answer === "60" || answer === "60°" || answer.toLowerCase() === "soixante") {
+                    isBusy = true;
+                    playSound('insertion_metal');
+                    
+                    setTimeout(() => {
+                        playSound('frottement_pierre_lourde');
+                        
+                        setTimeout(async () => {
+                            playSound('success');
+                            playSound('clic_mecanisme');
+                            
+                            // Récompense : Fragment de Carte Stellaire
+                            await ajouterObjet("Carte Stellaire");
+                            
+                            // On retire l'Ankh car il reste inséré dans le mécanisme
+                            userData.inventory = userData.inventory.filter(i => i !== "Ankh de Bronze");
+                            await updateDoc(doc(db, "users", currentUser.uid), { inventory: userData.inventory });
+
+                            UI.showItem(
+                                "Carte Stellaire", 
+                                "Le bloc atteint le sommet ! Le Triangle Parfait (60°) était la clé. Vous récupérez un fragment de basalte gravé d'étoiles d'or. C'est un guide pour la Chambre du Sarcophage.", 
+                                "assets/images/items/carte_stellaire_item.webp", 
+                                () => {
+                                    isBusy = false;
+                                    changeScene("rampe_resolue");
+                                }
+                            );
+                        }, 2000); // Délai pour simuler le glissement de la pierre
+                    }, 800);
+                } else {
+                    playSound('error');
+                    UI.message("Vous réglez l'angle, mais le bloc est trop lourd ou la pente trop faible. Le mécanisme refuse de s'enclencher.");
+                }
+            }, "assets/images/items/triangle_indice.webp");
+        }
+
+        function donnerIndiceHorloge() {
+            // Rappel de la logique : Sirius est à 6h, cible à 12h, un cran = +3h.
+            UI.message("Votre carte indique : 'Sirius doit briller au zénith (12ème heure) pour éveiller l'œil. Actuellement, l'étoile est à la 6ème heure de la nuit. Chaque tour de levier fait avancer le ciel de 3 heures.'");
+        }
+
+        function enigmeHorloge() {
+            if (isBusy) return;
+            
+            // On vérifie que le joueur possède la carte stellaire (item étape 9)
+            if (!userData.inventory.includes("Carte Stellaire")) {
+                UI.message("Le mécanisme est complexe. Sans la carte stellaire trouvée à la rampe, vous ne saurez pas comment aligner les astres.");
+                return;
+            }
+
+            // On utilise l'illustration horloge_indice.webp
+            UI.ask("Combien de fois actionnez-vous le levier pour amener Sirius (6h) jusqu'au zénith (12h) ?", async (rep) => {
+                const answer = rep.trim();
+                
+                // Calcul : (12 - 6) / 3 = 2 tours
+                if (answer === "2" || answer.toLowerCase() === "deux") {
+                    isBusy = true;
+                    playSound('engrenage_pierre');
+                    
+                    setTimeout(() => {
+                        playSound('faisceau_stellaire');
+                        
+                        setTimeout(async () => {
+                            playSound('success');
+                            playSound('declic_magique');
+                            
+                            // Récompense : L'Amulette Oudjat (Oeil d'Horus)
+                            await ajouterObjet("Amulette Oudjat");
+                            
+                            // On garde la carte stellaire pour l'instant (décoration)
+                            
+                            UI.showItem(
+                                "Amulette Oudjat", 
+                                "L'alignement est atteint ! Sirius brille au zénith. Vous récupérez l'Amulette Oudjat, l'œil sacré qui voit à travers les illusions. Elle luit d'un bleu profond.", 
+                                "assets/images/items/oudjat_item.webp", 
+                                () => {
+                                    isBusy = false;
+                                    changeScene("horloge_resolue");
+                                }
+                            );
+                        }, 1500); 
+                    }, 1000);
+                } else {
+                    playSound('error');
+                    UI.message("Le ciel pivote mais les conduits restent sombres. Sirius n'est pas encore au zénith. Refaites votre calcul.");
+                }
+            }, "assets/images/items/horloge_indice.webp");
+        }
+
+        function donnerIndiceRunes() {
+    // Affiche l'illustration rune_indice.webp
+    UI.message("Les murmures disent : 'Reçois le souffle de Vie, traverse l'éclat du Jour, et accomplis ta Transformation.' Observez bien l'ordre des symboles.");
+        }
+
+        function enigmeRunes() {
+            if (isBusy) return;
+            
+            // On vérifie que le joueur possède l'Amulette Oudjat (item étape 10)
+            // Car c'est l'œil qui permet de "voir" la magie des runes
+            if (!userData.inventory.includes("Amulette Oudjat")) {
+                UI.message("Les symboles semblent flous. Il vous manque l'œil sacré pour percevoir l'ordre véritable de ces runes.");
+                return;
+            }
+
+            // On utilise l'illustration rune_indice.webp pour aider le joueur
+            UI.ask("Dans quel ordre pressez-vous les trois symboles (DISQUE-ANKH-SCARABEE) ? (Séparez par des tirets)", async (rep) => {
+                const answer = normalize(rep).replace(/ /g, "-");
+                
+                // Ordre attendu : Vie (Ankh) -> Jour (Disque) -> Transformation (Scarabée)
+                if (answer.includes("ankh") && answer.includes("disque") && answer.includes("scarabee") && 
+                    answer.indexOf("ankh") < answer.indexOf("disque") && 
+                    answer.indexOf("disque") < answer.indexOf("scarabee")) {
+                    
+                    isBusy = true;
+                    playSound('cliquetis_bijoux');
+                    
+                    setTimeout(() => {
+                        playSound('success');
+                        playSound('glissement_or');
+                        
+                        setTimeout(async () => {
+                            // Récompense : Le Pilier Djed
+                            await ajouterObjet("Pilier Djed");
+                            
+                            // On peut garder l'amulette (elle servira plus tard)
+                            
+                            UI.showItem(
+                                "Pilier Djed", 
+                                "Le cycle est respecté ! La parure s'ouvre pour vous offrir le Pilier Djed. Ce symbole de stabilité est la deuxième clé nécessaire pour sceller le sarcophage et sortir d'ici.", 
+                                "assets/images/items/djed_item.webp", 
+                                () => {
+                                    isBusy = false;
+                                    changeScene("runes_resolu");
+                                }
+                            );
+                        }, 1500);
+                    }, 800);
+                } else {
+                    playSound('error');
+                    UI.message("Les joyaux s'enfoncent mais se bloquent aussitôt. Ce n'est pas le cycle de l'éternité.");
+                }
+            }, "assets/images/items/rune_indice.webp");
+        }
+
+        function fouillerTresor() {
+            if (isBusy) return;
+            
+            // On vérifie si le joueur a déjà le miroir
+            if (userData.inventory.includes("Miroir de Bronze")) {
+                UI.message("Vous avez déjà récupéré tout ce qui semblait utile dans ce tas d'or.");
+                return;
+            }
+
+            isBusy = true;
+            playSound('cliquetis_or');
+            
+            setTimeout(async () => {
+                await ajouterObjet("Miroir de Bronze");
+                UI.showItem(
+                    "Miroir de Bronze", 
+                    "En écartant quelques statuettes, vous découvrez un miroir de bronze poli. Il est si brillant qu'il semble capturer la moindre lueur de vos torches.", 
+                    "assets/images/items/miroir_item.webp", 
+                    () => {
+                        isBusy = false;
+                        renderScene("porte_gardiens");
+                    }
+                );
+            }, 1000);
+        }
+
+        function enigmeGardien() {
+            if (isBusy) return;
+            
+            // Sécurité : il faut le miroir
+            if (!userData.inventory.includes("Miroir de Bronze")) {
+                UI.message("Vous essayez de passer, mais le Gardien émet un son de basse fréquence qui vous fait reculer. Il vous faut un moyen de neutraliser son regard.");
+                return;
+            }
+
+            // On utilise l'illustration miroir_indice.webp
+            UI.ask("Le Gardien ne craint pas l'ombre, mais il est terrassé par le reflet de sa propre splendeur. Que faites-vous avec le miroir ?", async (rep) => {
+                const answer = normalize(rep);
+                
+                // On accepte des mots comme "refléter", "éblouir", "lumière", "yeux"
+                if (answer.includes("reflet") || answer.includes("refleter") || answer.includes("eblouir") || answer.includes("lumiere") || answer.includes("yeux")) {
+                    isBusy = true;
+                    playSound('faisceau_lumineux');
+                    
+                    setTimeout(() => {
+                        playSound('success');
+                        playSound('pierre_lourde_ouverture');
+                        
+                        setTimeout(async () => {
+                            // On retire le miroir car il reste utilisé pour bloquer le gardien (ou on le garde, au choix)
+                            userData.inventory = userData.inventory.filter(i => i !== "Miroir de Bronze");
+                            await updateDoc(doc(db, "users", currentUser.uid), { inventory: userData.inventory });
+
+                            UI.message("Le rayon de lumière frappe les yeux de cristal du colosse ! Dans un fracas massif, le Gardien s'efface dans le mur.", () => {
+                                isBusy = false;
+                                changeScene("gardien_vaincu");
+                            });
+                        }, 2000);
+                    }, 1000);
+                } else {
+                    playSound('error');
+                    UI.message("La statue reste impassible. Votre action n'a aucun effet sur son regard de pierre.");
+                }
+            }, "assets/images/items/miroir_indice.webp");
+        }
+
+        function donnerIndiceSceau() {
+            // Affiche l'illustration ordre_indice.webp
+            UI.message("L'inscription dit : 'La Vie est offerte en premier (Ankh). Le Regard s'ouvre ensuite sur le monde (Oudjat). La Stabilité finit par s'établir pour l'éternité (Djed).'");
+        }
+
+        function enigmeSceau() {
+            if (isBusy) return;
+            
+            // Vérification des objets (Oudjat et Djed sont obligatoires)
+            if (!userData.inventory.includes("Amulette Oudjat") || !userData.inventory.includes("Pilier Djed")) {
+                UI.message("Il vous manque des artefacts sacrés pour activer ce mécanisme.");
+                return;
+            }
+
+            // On utilise l'illustration ordre_indice.webp
+            UI.ask("Dans quel ordre insérez-vous les trois artefacts sur l'autel (OUDJAT-DJED-ANKH) ?", async (rep) => {
+                const answer = normalize(rep).replace(/ /g, "-");
+                
+                // Ordre attendu : Ankh -> Oudjat (Oeil) -> Djed (Pilier)
+                if (answer.includes("ankh") && answer.includes("oudjat") && answer.includes("djed") && 
+                    answer.indexOf("ankh") < answer.indexOf("oudjat") && 
+                    answer.indexOf("oudjat") < answer.indexOf("djed")) {
+                    
+                    isBusy = true;
+                    playSound('clic_pierre_precieuse');
+                    
+                    setTimeout(() => {
+                        playSound('success');
+                        playSound('mecanisme_final');
+                        playSound('triomphe_egypte');
+                        
+                        setTimeout(async () => {
+                            // Récompense : La Bague du Pharaon
+                            await ajouterObjet("Bague du Pharaon");
+                            
+                            // On vide les artefacts de l'inventaire car ils sont posés
+                            userData.inventory = userData.inventory.filter(i => 
+                                i !== "Amulette Oudjat" && i !== "Pilier Djed" && i !== "Miroir de Bronze"
+                            );
+                            await updateDoc(doc(db, "users", currentUser.uid), { inventory: userData.inventory });
+
+                            UI.showItem(
+                                "Bague du Pharaon", 
+                                "Le Sceau Royal est activé ! Le pont vers la sortie s'est déployé au-dessus du vide. Vous récupérez la bague du souverain, preuve de votre succès.", 
+                                "assets/images/items/bague_item.webp", 
+                                () => {
+                                    isBusy = false;
+                                    changeScene("sceau_resolu");
+                                }
+                            );
+                        }, 2000);
+                    }, 1000);
+                } else {
+                    playSound('error');
+                    UI.message("Les artefacts rejettent l'autel. L'ordre de la Création n'a pas été respecté.");
+                }
+            }, "assets/images/items/ordre_indice.webp");
+        }
+
+        function donnerIndiceFinal() {
+            UI.message("À l'intérieur de la bague, trois chiffres sont ciselés dans l'or. On dirait un code de secours universel ou le matricule d'un célèbre archéologue : 9-1-1.");
+        }
+
+        async function enigmeFinal() {
+            if (isBusy) return;
+
+            UI.ask("Entrez le code gravé sur la bague pour déverrouiller la porte de sortie :", async (rep) => {
+                if (rep.trim() === "911") {
+                    isBusy = true;
+                    playSound('pas_pierre');
+                    
+                    setTimeout(() => {
+                        playSound('porte_soleil');
+                        playSound('success');
+                        
+                        setTimeout(async () => {
+                            // 1. Enregistrement dans le Hall of Fame
+                            try {
+                                // On utilise setDoc avec l'UID de l'utilisateur pour qu'il n'ait qu'une seule entrée
+                                await setDoc(doc(db, "winners", currentUser.uid), {
+                                    pseudo: userData.pseudo,
+                                    date: serverTimestamp()
+                                });
+                            } catch (e) { 
+                                console.error("Erreur Hall of Fame:", e); 
+                            }
+
+                            // 2. Passage à la scène de victoire
+                            changeScene("victoire");
+                            isBusy = false;
+                        }, 2000);
+                    }, 1000);
+                } else {
+                    playSound('error');
+                    UI.message("Le verrou ne bouge pas. Le code est incorrect.");
+                }
+            });
+        }
+
+        async function afficherHallOfFame() {
+            try {
+                const q = query(collection(db, "winners"), orderBy("date", "desc"));
+                const querySnapshot = await getDocs(q);
+                
+                let liste = "LISTE DES GRANDS ARCHÉOLOGUES :\n\n";
+                querySnapshot.forEach((doc) => {
+                    liste += "- " + doc.data().pseudo + "\n";
+                });
+
+                // On utilise la modale parchemin avec l'image hall_fame.webp
+                UI.message(liste, null, "assets/images/items/hall_fame.webp");
+            } catch (e) {
+                UI.message("Impossible de lire les archives pour le moment.");
+            }
+        }
+        
+
+        window.logout = () => signOut(auth);
+    </script>
+</body>
+</html>

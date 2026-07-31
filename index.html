@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L'Héritage d'Anubis - Accueil</title>
+    <!-- On garde les mêmes polices "Cinzel" et "Crimson" qui vont très bien avec l'Égypte -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Text&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="bg-accueil"></div> <!-- On mettra une image de pyramide/temple ici plus tard -->
+    <div class="bg-overlay"></div>
+
+    <!-- MODALE PARCHEMIN -->
+    <div id="custom-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div id="modal-text"></div>
+            <div id="modal-input-area">
+                <input type="text" id="modal-input-field">
+            </div>
+            <button id="modal-btn" class="btn-modal">Continuer</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header-titles">
+            <h1>L'HÉRITAGE D'ANUBIS</h1>
+            <div class="subtitle">LE TOMBEAU PERDU - EXPÉDITION 1920</div>
+        </div>
+
+        <div class="auth-card">
+            <h2 id="form-title">REJOINDRE L'EXPÉDITION</h2>
+            <div class="input-group" id="group-pseudo">
+                <label>Nom de l'explorateur</label>
+                <input type="text" id="pseudo" placeholder="Ex: Howard Carter">
+            </div>
+            <div class="input-group">
+                <label>Courrier de l'Académie (Email)</label>
+                <input type="email" id="email" placeholder="votre@email.com">
+            </div>
+            <div class="input-group">
+                <label>Code secret (Mot de passe)</label>
+                <input type="password" id="password" placeholder="********">
+            </div>
+            <button class="btn-main" id="submit-auth">PÉNÉTRER DANS LE TOMBEAU</button>
+            <div class="toggle-auth" id="toggle-link">Déjà inscrit ? Se connecter</div>
+        </div>
+        
+        <div class="credits">© 2026 - Imaginé et créé par Bruno CULOT</div>
+    </div>
+
+    <script type="module" src="js/auth.js"></script>
+</body>
+</html>
