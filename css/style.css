@@ -1,0 +1,136 @@
+/* css/style.css */
+:root {
+    --gold: #d4af37;
+    --ocre: #b87333;
+    --glass: rgba(0, 0, 0, 0.3);
+    --text-color: #e0d5c0;
+}
+
+body, html {
+    margin: 0; padding: 0; height: 100%;
+    font-family: 'Crimson Text', serif;
+    background-color: #000; color: var(--text-color);
+    overflow-x: hidden;
+}
+
+/* IMAGE DE FOND */
+.bg-accueil {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background-image: url('../assets/images/bg_accueil.webp');
+    background-repeat: no-repeat; background-size: cover;
+    background-position: center; z-index: 1;
+}
+
+.bg-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: radial-gradient(circle, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 100%);
+    z-index: 2;
+}
+
+.container {
+    position: relative; z-index: 10;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: flex-start; padding-top: 10vh;
+    min-height: 100vh; box-sizing: border-box;
+}
+
+h1 {
+    font-family: 'Cinzel', serif; font-size: 4rem;
+    color: var(--gold); text-shadow: 0 0 20px rgba(0,0,0,1);
+    margin: 0; letter-spacing: 8px; text-align: center;
+}
+
+.subtitle {
+    font-family: 'Cinzel', serif; font-size: 1.4rem;
+    color: var(--gold); letter-spacing: 6px; text-align: center;
+    margin-top: 10px; font-weight: bold;
+}
+
+.auth-card {
+    background: var(--glass); padding: 30px; border: 2px solid var(--gold);
+    border-radius: 8px; width: 90%; max-width: 400px;
+    margin-top: 40px; box-shadow: 0 0 50px rgba(0,0,0,0.9);
+}
+
+.input-group { margin-bottom: 20px; }
+label { display: block; margin-bottom: 8px; font-size: 0.8rem; color: var(--gold); text-transform: uppercase; }
+input { width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid #444; color: white; box-sizing: border-box; }
+
+.btn-main {
+    width: 100%; padding: 16px; background: var(--ocre); color: white;
+    border: 1px solid var(--gold); font-family: 'Cinzel', serif;
+    font-weight: bold; cursor: pointer; letter-spacing: 2px;
+}
+
+.toggle-auth { margin-top: 20px; font-size: 0.85rem; color: #aaa; cursor: pointer; text-align: center; text-decoration: underline; }
+
+/* MODALES (PARCHEMIN) */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); display: none;
+    justify-content: center; align-items: center; z-index: 2000;
+}
+
+.modal-content {
+    background: url('../assets/images/items/papyrus.webp') no-repeat center center;
+    background-size: contain; /* L'image s'adapte à la boite */
+    width: 95%; 
+    max-width: 600px;
+    height: 450px;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    padding: 60px 80px; /* On repousse le texte vers le centre du papyrus */
+    box-sizing: border-box; 
+    text-align: center;
+    color: #3d2b1f; /* Couleur encre brune */
+    font-family: 'Crimson Text', serif;
+    font-weight: bold;
+    font-size: 1.2rem;
+    border: none; /* On enlève les bordures CSS, le papyrus fait le travail */
+}
+
+#modal-input-field {
+    background: rgba(0,0,0,0.05);
+    border: 1px solid #3d2b1f;
+    font-family: 'Cinzel', serif;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.btn-modal {
+    margin-top: 20px; background: #3d2b1f; color: #e0d5c0;
+    border: none; padding: 10px 25px; cursor: pointer; font-family: 'Cinzel';
+}
+
+.credits {
+    position: fixed;   /* Fixé par rapport à l'écran */
+    bottom: 20px;      /* 20 pixels du bord du bas */
+    left: 20px;        /* 20 pixels du bord de gauche */
+    color: var(--gold);
+    font-size: 0.85rem;
+    z-index: 100;      /* Pour passer au-dessus de l'overlay */
+    opacity: 0.8;      /* Un peu de transparence pour rester discret */
+    font-family: 'Crimson Text', serif;
+}
+
+/* On cache le message par défaut */
+#rotate-device {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: #000; color: #d4af37;
+    z-index: 9999;
+    text-align: center;
+    justify-content: center; align-items: center;
+    font-family: 'Cinzel', serif;
+}
+
+/* On n'affiche le message QUE si DEUX conditions sont réunies :
+   1. L'écran est en mode Portrait (vertical)
+   2. La largeur est petite (typique d'un smartphone < 1024px) 
+   Cela évite de bloquer les ordinateurs. */
+@media screen and (orientation: portrait) and (max-width: 1024px) {
+    #rotate-device {
+        display: flex;
+    }
+}
