@@ -912,8 +912,7 @@
         }
 
         function donnerIndiceBalance() {
-            // Affiche l'image d'indice que tu as générée (poids_indice.webp)
-            UI.message("La stèle indique les valeurs des plumes : Justice = 20, Sagesse = 10, Honneur = 5, Pureté = 2. Le cœur pèse 42.");
+            UI.message("La stèle indique les valeurs des plumes : Justice = 20, Sagesse = 10, Honneur = 5, Pureté = 2. Le cœur pèse 42.", null, "assets/images/items/poids_indice.webp");
         }
 
         function activerBalance() {
@@ -976,7 +975,7 @@
         } 
 
         function donnerIndiceReservoir() {
-            UI.message("L'inscription dit : 'La vérité réside dans le reste. Remplis la grande jarre (5L), verse-la dans la petite (3L) jusqu'au bord. Ce qui reste dans la grande est ton premier pas. Recommence pour atteindre le but (4L).'");
+            UI.message("L'inscription dit : 'La vérité réside dans le reste. Remplis la grande jarre (5L), verse-la dans la petite (3L) jusqu'au bord. Ce qui reste dans la grande est ton premier pas. Recommence pour atteindre le but (4L).'", null, "assets/images/items/volume_indice.webp");
         }
 
         function enigmeReservoir() {
@@ -1017,10 +1016,8 @@
         }
 
         function donnerIndiceRampe() {
-            // Affiche triangle_indice.webp
-            UI.message("L'inscription dit : 'La pierre ne rejoindra les cieux que si la rampe adopte l'angle du Triangle Parfait, celui où les trois côtés sont égaux et où chaque sommet pointe vers la même sagesse.'");
+            UI.message("L'inscription dit : 'La pierre ne rejoindra les cieux que si la rampe adopte l'angle du Triangle Parfait, celui où les trois côtés sont égaux.'", null, "assets/images/items/triangle_indice.webp");
         }
-
         function enigmeRampe() {
             if (isBusy) return;
             
@@ -1072,8 +1069,7 @@
         }
 
         function donnerIndiceHorloge() {
-            // Rappel de la logique : Sirius est à 6h, cible à 12h, un cran = +3h.
-            UI.message("Votre carte indique : 'Sirius doit briller au zénith (12ème heure) pour éveiller l'œil. Actuellement, l'étoile est à la 6ème heure de la nuit. Chaque tour de levier fait avancer le ciel de 3 heures.'");
+            UI.message("Votre carte indique : 'Sirius doit briller au zénith (12ème heure). Actuellement, l'étoile est à la 6ème heure. Chaque tour de levier fait avancer le ciel de 3 heures.'", null, "assets/images/items/horloge_indice.webp");
         }
 
         function enigmeHorloge() {
@@ -1114,8 +1110,7 @@
         }
 
         function donnerIndiceRunes() {
-    // Affiche l'illustration rune_indice.webp
-    UI.message("Les murmures disent : 'Reçois le souffle de Vie, traverse l'éclat du Jour, et accomplis ta Transformation.' Observez bien l'ordre des symboles.");
+            UI.message("Les murmures disent : 'Reçois le souffle de Vie, traverse l'éclat du Jour, et accomplis ta Transformation.' Observez bien l'ordre des symboles.", null, "assets/images/items/rune_indice.webp");
         }
 
         function enigmeRunes() {
@@ -1235,8 +1230,7 @@
         }
 
         function donnerIndiceSceau() {
-            // Affiche l'illustration ordre_indice.webp
-            UI.message("L'inscription dit : 'La Vie est offerte en premier (Ankh). Le Regard s'ouvre ensuite sur le monde (Oudjat). La Stabilité finit par s'établir pour l'éternité (Djed).'");
+            UI.message("L'inscription dit : 'La Vie est offerte en premier (Ankh). Le Regard s'ouvre ensuite sur le monde (Oudjat). La Stabilité finit par s'établir pour l'éternité (Djed).'", null, "assets/images/items/ordre_indice.webp");
         }
 
         function enigmeSceau() {
