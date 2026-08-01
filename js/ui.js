@@ -1,15 +1,29 @@
 // js/ui.js
 
 export const UI = {
-    // 1. Affiche un message simple sur le parchemin
-    message: function(text, callback = null) {
+    // 1. Affiche un message simple avec IMAGE OPTIONNELLE
+    message: function(text, callback = null, imagePath = null) {
         const modal = document.getElementById('custom-modal');
         const modalText = document.getElementById('modal-text');
         const inputArea = document.getElementById('modal-input-area');
         const modalBtn = document.getElementById('modal-btn');
+        const modalImg = document.getElementById('modal-illustration');
+
+        // Nettoyage systématique
+        if (modalImg) {
+            modalImg.src = "";
+            modalImg.style.display = 'none';
+        }
 
         modalText.innerText = text;
-        if (inputArea) inputArea.style.display = 'none'; // On cache le champ de saisie
+        if (inputArea) inputArea.style.display = 'none';
+
+        // Affichage de l'image si fournie
+        if (imagePath && modalImg) {
+            modalImg.src = imagePath;
+            modalImg.onload = () => { modalImg.style.display = 'block'; };
+        }
+
         modal.style.display = 'flex';
 
         modalBtn.onclick = () => {
@@ -18,7 +32,7 @@ export const UI = {
         };
     },
 
-    // 2. Affiche une question avec un champ de saisie et une IMAGE OPTIONNELLE
+    // 2. Affiche une question avec champ de saisie et IMAGE OPTIONNELLE
     ask: function(text, callback, imagePath = null) {
         const modal = document.getElementById('custom-modal');
         const modalText = document.getElementById('modal-text');
@@ -27,21 +41,21 @@ export const UI = {
         const modalBtn = document.getElementById('modal-btn');
         const modalImg = document.getElementById('modal-illustration');
 
-        // --- CORRECTION ICI : On vide l'image et on la cache d'abord ---
+        // Nettoyage systématique
         if (modalImg) {
-            modalImg.src = ""; 
+            modalImg.src = "";
             modalImg.style.display = 'none';
         }
 
         modalText.innerText = text;
-        
+        if (inputArea) inputArea.style.display = 'block';
+
+        // Affichage de l'image si fournie
         if (imagePath && modalImg) {
             modalImg.src = imagePath;
-            // On attend que l'image soit chargée pour l'afficher proprement
             modalImg.onload = () => { modalImg.style.display = 'block'; };
         }
 
-        if (inputArea) inputArea.style.display = 'block';
         if (inputField) {
             inputField.value = "";
             modal.style.display = 'flex';
@@ -55,7 +69,7 @@ export const UI = {
         };
     },
 
-    // 3. Affiche la modale spéciale quand on trouve un objet
+    // 3. Affiche la modale d'objet trouvé (inchangée)
     showItem: function(title, text, imagePath, callback = null) {
         const modal = document.getElementById('item-modal');
         const modalTitle = document.getElementById('item-modal-title');
