@@ -131,6 +131,48 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // ==========================================
+        //     SYSTÈME DE PRÉCHARGEMENT DES IMAGES
+        // ==========================================
+        const imagesToPreload = [
+            "assets/images/scenes/antichambre_01.webp",
+            "assets/images/scenes/antichambre_02.webp",
+            "assets/images/scenes/scarabee_01.webp",
+            "assets/images/scenes/scarabee_02.webp",
+            "assets/images/scenes/scribes_01.webp",
+            "assets/images/scenes/scribes_02.webp",
+            "assets/images/scenes/statues_01.webp",
+            "assets/images/scenes/statues_02.webp",
+            "assets/images/scenes/fresque_01.webp",
+            "assets/images/scenes/fresque_02.webp",
+            "assets/images/scenes/trappe_01.webp",
+            "assets/images/scenes/trappe_02.webp",
+            "assets/images/scenes/balance_01.webp",
+            "assets/images/scenes/balance_02.webp",
+            "assets/images/scenes/reservoir_01.webp",
+            "assets/images/scenes/reservoir_02.webp",
+            "assets/images/scenes/rampe_01.webp",
+            "assets/images/scenes/rampe_02.webp",
+            "assets/images/scenes/etoiles_01.webp",
+            "assets/images/scenes/etoiles_02.webp",
+            "assets/images/scenes/runes_01.webp",
+            "assets/images/scenes/runes_02.webp",
+            "assets/images/scenes/gardien_01.webp",
+            "assets/images/scenes/gardien_02.webp",
+            "assets/images/scenes/sceau_01.webp",
+            "assets/images/scenes/sceau_02.webp",
+            "assets/images/scenes/pont_01.webp",
+            "assets/images/scenes/victoire_01.webp"
+        ];
+
+        imagesToPreload.forEach(src => {
+            const img = new Image();
+            img.src = src;
+        });
 
         let currentUser = null;
         let userData = null;
