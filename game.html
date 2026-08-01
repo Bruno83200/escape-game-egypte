@@ -986,42 +986,32 @@
                 UI.message("Vous avez besoin d'un récipient sacré pour puiser l'eau du bassin.");
                 return;
             }
-
-            // On pose une question sur la LOGIQUE de l'opération
-            UI.ask("Après avoir versé la jarre de 5L dans celle de 3L, combien de litres reste-t-il dans la grande jarre, et combien de fois devez-vous verser ce reste dans le mécanisme pour obtenir 4L ?", async (rep) => {
-                
+        
+            UI.ask("Après avoir versé la jarre de 5L dans celle de 3L, combien de litres reste-t-il ? Et combien de fois faut-il verser ce reste pour obtenir 4L ?", async (rep) => {
                 const answer = normalize(rep);
                 
-                // On cherche la présence du "2" (le reste) ET du "2" (le nombre de fois)
-                // On utilise une petite ruse pour vérifier si les deux "2" sont dans la réponse
-                const countTwos = (answer.match(/2/g) || []).length;
-                const hasTextLogic = answer.includes("deux") && answer.includes("fois");
-
-                if (countTwos >= 2 || (answer.includes("2") && answer.includes("fois")) || answer.includes("2 et 2")) {
+                // On accepte si la réponse contient "2" ou "deux"
+                if (answer.includes("2") || answer.includes("deux")) {
                     isBusy = true;
                     playSound('remplissage_eau');
                     
                     setTimeout(async () => {
                         playSound('success');
                         playSound('mecanisme_hydraulique');
-                        
                         await ajouterObjet("Ankh de Bronze");
                         userData.inventory = userData.inventory.filter(i => i !== "Vase Canope (Hapi)");
                         await updateDoc(doc(db, "users", currentUser.uid), { inventory: userData.inventory });
-
+        
                         UI.showItem(
                             "Ankh de Bronze", 
-                            "Exact ! 5L - 3L = 2L. En versant ce reste deux fois, vous obtenez les 4L requis. La pression hydraulique libère enfin l'Ankh de bronze !", 
+                            "Exact ! 5L - 3L = 2L. En versant ce reste deux fois (2 + 2), vous obtenez 4L. La pression libère l'Ankh !", 
                             "assets/images/items/ankh_item.webp", 
-                            () => {
-                                isBusy = false;
-                                changeScene("reservoir_resolu");
-                            }
+                            () => { isBusy = false; changeScene("reservoir_resolu"); }
                         );
                     }, 1500);
                 } else {
                     playSound('error');
-                    UI.message("Le mécanisme ne réagit pas. Relisez bien l'indice : combien reste-t-il dans la jarre de 5L après avoir rempli celle de 3L ? Et combien de fois faut-il ce reste pour faire 4 ?");
+                    UI.message("Le mécanisme ne réagit pas. Calculez le reste : 5L moins 3L...");
                 }
             }, "assets/images/items/volume_indice.webp");
         }
@@ -1089,47 +1079,36 @@
         function enigmeHorloge() {
             if (isBusy) return;
             
-            // On vérifie que le joueur possède la carte stellaire (item étape 9)
             if (!userData.inventory.includes("Carte Stellaire")) {
-                UI.message("Le mécanisme est complexe. Sans la carte stellaire trouvée à la rampe, vous ne saurez pas comment aligner les astres.");
+                UI.message("Sans la carte stellaire, vous ne saurez pas comment aligner les astres.");
                 return;
             }
-
-            // On utilise l'illustration horloge_indice.webp
+        
             UI.ask("Combien de fois actionnez-vous le levier pour amener Sirius (6h) jusqu'au zénith (12h) ?", async (rep) => {
-                const answer = rep.trim();
+                const answer = normalize(rep); // On utilise ta fonction normalize !
                 
-                // Calcul : (12 - 6) / 3 = 2 tours
-                if (answer === "2" || answer.toLowerCase() === "deux") {
+                // On vérifie si la réponse contient "2" ou "deux"
+                if (answer.includes("2") || answer.includes("deux")) {
                     isBusy = true;
                     playSound('engrenage_pierre');
                     
                     setTimeout(() => {
                         playSound('faisceau_stellaire');
-                        
                         setTimeout(async () => {
                             playSound('success');
                             playSound('declic_magique');
-                            
-                            // Récompense : L'Amulette Oudjat (Oeil d'Horus)
                             await ajouterObjet("Amulette Oudjat");
-                            
-                            // On garde la carte stellaire pour l'instant (décoration)
-                            
                             UI.showItem(
                                 "Amulette Oudjat", 
-                                "L'alignement est atteint ! Sirius brille au zénith. Vous récupérez l'Amulette Oudjat, l'œil sacré qui voit à travers les illusions. Elle luit d'un bleu profond.", 
+                                "L'alignement est atteint ! Sirius brille au zénith. Vous récupérez l'œil sacré qui voit à travers les illusions.", 
                                 "assets/images/items/oudjat_item.webp", 
-                                () => {
-                                    isBusy = false;
-                                    changeScene("horloge_resolue");
-                                }
+                                () => { isBusy = false; changeScene("horloge_resolue"); }
                             );
                         }, 1500); 
                     }, 1000);
                 } else {
                     playSound('error');
-                    UI.message("Le ciel pivote mais les conduits restent sombres. Sirius n'est pas encore au zénith. Refaites votre calcul.");
+                    UI.message("Le ciel pivote mais Sirius n'est pas encore au zénith. (Indice: 1 tour = 3h)");
                 }
             }, "assets/images/items/horloge_indice.webp");
         }
