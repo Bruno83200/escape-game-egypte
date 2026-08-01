@@ -25,16 +25,20 @@ export const UI = {
         const inputArea = document.getElementById('modal-input-area');
         const inputField = document.getElementById('modal-input-field');
         const modalBtn = document.getElementById('modal-btn');
-        const modalImg = document.getElementById('modal-illustration'); // On récupère l'élément image
+        const modalImg = document.getElementById('modal-illustration');
+
+        // --- CORRECTION ICI : On vide l'image et on la cache d'abord ---
+        if (modalImg) {
+            modalImg.src = ""; 
+            modalImg.style.display = 'none';
+        }
 
         modalText.innerText = text;
         
-        // Gestion de l'image d'illustration
         if (imagePath && modalImg) {
             modalImg.src = imagePath;
-            modalImg.style.display = 'block';
-        } else if (modalImg) {
-            modalImg.style.display = 'none';
+            // On attend que l'image soit chargée pour l'afficher proprement
+            modalImg.onload = () => { modalImg.style.display = 'block'; };
         }
 
         if (inputArea) inputArea.style.display = 'block';
