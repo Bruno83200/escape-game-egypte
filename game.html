@@ -128,12 +128,11 @@
         import { firebaseConfig } from "./js/config.js";
         import { UI } from "./js/ui.js";
 
+        // 1. Initialisation unique
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        
 
         // ==========================================
         //     SYSTÈME DE PRÉCHARGEMENT DES IMAGES
@@ -174,6 +173,7 @@
             img.src = src;
         });
 
+        // 3. Variables de jeu
         let currentUser = null;
         let userData = null;
         let currentActiveScene = null;
