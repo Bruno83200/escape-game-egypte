@@ -134,3 +134,22 @@ input { width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 
         display: flex;
     }
 }
+
+/* --- EFFET LOUPE SUR LES INDICES --- */
+#modal-illustration {
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animation fluide */
+    cursor: zoom-in;               /* Curseur en forme de loupe */
+    position: relative;
+    z-index: 1;
+    transform-origin: left center; /* S'agrandit vers la droite */
+    /* On garde tes styles de bordure et filtre pour la cohérence */
+    border: 1px solid #3d2b1f;     
+}
+
+/* Effet au survol */
+#modal-illustration:hover {
+    transform: scale(2.8);         /* Agrandissement x 2.8 */
+    z-index: 100;                  /* Passe devant le texte du papyrus */
+    box-shadow: 15px 10px 30px rgba(0,0,0,0.5); /* Ombre pour détacher l'image */
+    filter: sepia(0);              /* Optionnel : retire le sépia au survol pour mieux voir les couleurs */
+}
