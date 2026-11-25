@@ -37,9 +37,9 @@ body.auth-page {
 /* Voile solaire ambré mettant en valeur le temple d'Anubis */
 .auth-bg-wash {
   position: fixed;
-  inset: 0;
-  background:
-    linear-gradient(108deg, rgba(18, 12, 6, 0.74) 0%, rgba(28, 20, 11, 0.36) 50%, rgba(22, 16, 10, 0.58) 100%),
+  inset: 0;  
+    background:
+    linear-gradient(108deg, rgba(18, 12, 6, 0.45) 0%, rgba(28, 20, 11, 0.12) 50%, rgba(22, 16, 10, 0.28) 100%),
     radial-gradient(circle at 80% 18%, rgba(235, 197, 107, 0.18), transparent 48%);
   z-index: 1;
 }
