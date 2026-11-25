@@ -1,0 +1,431 @@
+/* ==========================================================================
+   L'HÉRITAGE D'ANUBIS — DESIGN SYSTEM
+   Style : Carnet d'Archéologue 1920 (Papyrus lumineux, Lapis-Lazuli & Or)
+   ========================================================================== */
+
+:root {
+  /* Surfaces Papyrus & Sable doré */
+  --papyrus-50: #fefbf2;
+  --papyrus-100: #fbf3df;
+  --papyrus-200: #f3e4c2;
+  --papyrus-300: #e5cfa0;
+  --papyrus-glass: rgba(253, 247, 232, 0.93);
+
+  /* Encres & Basalte */
+  --ink-900: #21170e;
+  --ink-800: #342416;
+  --ink-700: #523b26;
+  --ink-500: #7f6244;
+  --ink-300: #ae9272;
+
+  /* Lapis-Lazuli Royal (Pigment sacré d'Égypte) */
+  --lapis-900: #0e2744;
+  --lapis-800: #163b63;
+  --lapis-700: #1f5187;
+  --lapis-100: rgba(22, 59, 99, 0.085);
+  --lapis-200: rgba(22, 59, 99, 0.18);
+
+  /* Or Pharaonique & Ocre du Désert */
+  --gold-700: #916216;
+  --gold-600: #b88224;
+  --gold-500: #d49e35;
+  --gold-400: #ebc56b;
+  --ocre-600: #a85426;
+
+  /* Jaspe Rouge & Malachite du Nil */
+  --jasper-600: #9c2f23;
+  --jasper-500: #b93d2f;
+  --jasper-100: rgba(156, 47, 35, 0.11);
+  --malachite-600: #1d6b5e;
+  --malachite-500: #298979;
+  --malachite-100: rgba(29, 107, 94, 0.12);
+
+  /* Typographies */
+  --font-display: 'Cinzel', Georgia, serif;
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-ui: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Ombres & Courbes */
+  --shadow-card: 0 22px 62px rgba(20, 12, 4, 0.34), 0 2px 8px rgba(20, 12, 4, 0.14);
+  --shadow-modal: 0 30px 92px rgba(14, 8, 3, 0.5), 0 0 0 1px rgba(212, 158, 53, 0.55);
+  --radius-sm: 5px;
+  --radius-md: 10px;
+  --ease-papyrus: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+  font-family: var(--font-ui);
+  color: var(--ink-900);
+  background: var(--papyrus-200);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Texture papyrus tissé + fin quadrillage de relevé archéologique */
+.papyrus-surface {
+  background-color: var(--papyrus-50);
+  background-image:
+    radial-gradient(circle at 12% 14%, rgba(255, 253, 245, 0.92), transparent 52%),
+    radial-gradient(circle at 88% 88%, rgba(226, 198, 140, 0.36), transparent 55%),
+    repeating-linear-gradient(0deg, rgba(184, 130, 36, 0.032) 0px, rgba(184, 130, 36, 0.032) 1px, transparent 1px, transparent 18px),
+    repeating-linear-gradient(90deg, rgba(184, 130, 36, 0.028) 0px, rgba(184, 130, 36, 0.028) 1px, transparent 1px, transparent 22px);
+}
+
+/* Double encadrement de cartouche royal */
+.cartouche-frame {
+  position: relative;
+  border: 1.5px solid rgba(184, 130, 36, 0.62);
+  box-shadow: var(--shadow-card);
+}
+
+.cartouche-frame::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 1px solid rgba(22, 59, 99, 0.2);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Boutons — Hiérarchie Lapis-Lazuli & Papyrus */
+.btn-lapis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 12px 22px;
+  background: linear-gradient(180deg, var(--lapis-700) 0%, var(--lapis-800) 100%);
+  color: var(--papyrus-50);
+  border: 1.5px solid var(--gold-500);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 0.84rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(14, 39, 68, 0.28), inset 0 1px 0 rgba(255, 240, 200, 0.22);
+  transition: transform 0.2s var(--ease-papyrus), box-shadow 0.25s var(--ease-papyrus), background 0.25s ease;
+}
+
+.btn-lapis:hover:not(:disabled) {
+  background: linear-gradient(180deg, #2762a3 0%, var(--lapis-700) 100%);
+  box-shadow: 0 6px 22px rgba(14, 39, 68, 0.36), 0 0 0 1px var(--gold-400);
+  transform: translateY(-1px);
+}
+
+.btn-lapis:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-papyrus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 18px;
+  background: linear-gradient(180deg, #fffdf8 0%, var(--papyrus-200) 100%);
+  color: var(--ink-900);
+  border: 1px solid rgba(184, 130, 36, 0.58);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(33, 23, 14, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  transition: all 0.22s var(--ease-papyrus);
+}
+
+.btn-papyrus:hover:not(:disabled) {
+  border-color: var(--lapis-700);
+  color: var(--lapis-800);
+  background: linear-gradient(180deg, #ffffff 0%, var(--papyrus-100) 100%);
+  box-shadow: 0 4px 14px rgba(22, 59, 99, 0.15);
+  transform: translateY(-1px);
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 12px;
+  background: rgba(254, 251, 242, 0.9);
+  color: var(--ink-800);
+  border: 1px solid rgba(184, 130, 36, 0.48);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-icon:hover {
+  background: #ffffff;
+  border-color: var(--lapis-700);
+  color: var(--lapis-800);
+}
+
+.btn-icon svg,
+.btn-lapis svg,
+.btn-papyrus svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.folio-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold-700);
+}
+
+/* Modale Papyrus Universelle */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 14, 7, 0.64);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1000;
+  animation: fadeBackdrop 0.24s ease forwards;
+}
+
+.modal-backdrop.is-open {
+  display: flex;
+}
+
+.papyrus-modal {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: var(--radius-md);
+  padding: 32px 34px 28px;
+  color: var(--ink-900);
+  box-shadow: var(--shadow-modal);
+  animation: folioAppear 0.32s var(--ease-papyrus) forwards;
+}
+
+.modal-close-x {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(184, 130, 36, 0.45);
+  background: rgba(255, 252, 245, 0.92);
+  color: var(--ink-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  transition: all 0.2s ease;
+  z-index: 5;
+}
+
+.modal-close-x:hover {
+  background: var(--lapis-800);
+  color: var(--papyrus-50);
+  border-color: var(--gold-500);
+}
+
+.modal-header-tag {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--lapis-800);
+  margin: 0 0 12px;
+  text-align: center;
+  letter-spacing: 0.06em;
+}
+
+.modal-body-row {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin: 14px 0 22px;
+}
+
+.modal-body-row.stacked {
+  flex-direction: column;
+  text-align: center;
+}
+
+.modal-thumb-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 185px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1.5px solid rgba(184, 130, 36, 0.6);
+  box-shadow: 0 6px 20px rgba(33, 23, 14, 0.18);
+  cursor: zoom-in;
+  background: var(--papyrus-200);
+}
+
+.modal-thumb-wrap img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 230px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.modal-thumb-wrap:hover img {
+  transform: scale(1.04);
+}
+
+.modal-thumb-zoom {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  background: rgba(254, 251, 242, 0.94);
+  color: var(--lapis-800);
+  border: 1px solid var(--gold-500);
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.modal-prose {
+  flex: 1;
+  font-family: var(--font-serif);
+  font-size: 1.24rem;
+  line-height: 1.58;
+  color: var(--ink-800);
+  white-space: pre-line;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Loupe Plein Écran */
+.lightbox-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 11, 6, 0.88);
+  backdrop-filter: blur(8px);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 2000;
+}
+
+.lightbox-backdrop.is-open {
+  display: flex;
+  animation: fadeBackdrop 0.2s ease forwards;
+}
+
+.lightbox-frame {
+  position: relative;
+  max-width: min(92vw, 940px);
+  max-height: 82vh;
+  background: var(--papyrus-50);
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--gold-500);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.65);
+  overflow: auto;
+}
+
+.lightbox-frame img {
+  display: block;
+  max-width: 100%;
+  max-height: 75vh;
+  border-radius: 3px;
+  cursor: zoom-in;
+}
+
+.lightbox-frame img.is-zoomed {
+  max-width: none;
+  max-height: none;
+  width: 165%;
+  cursor: zoom-out;
+}
+
+.lightbox-caption {
+  margin-top: 12px;
+  color: var(--papyrus-100);
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-style: italic;
+  text-align: center;
+}
+
+.lightbox-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+@keyframes fadeBackdrop {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes folioAppear {
+  from { opacity: 0; transform: translateY(14px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes shakeError {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-7px); }
+  40% { transform: translateX(7px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(4px); }
+}
+
+.shake-error {
+  animation: shakeError 0.42s ease;
+}
+
+::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar-track { background: rgba(229, 207, 160, 0.35); }
+::-webkit-scrollbar-thumb { background: rgba(184, 130, 36, 0.58); border-radius: 99px; }
+
+@media (max-width: 640px) {
+  .papyrus-modal { padding: 24px 20px 22px; }
+  .modal-body-row { flex-direction: column; text-align: center; }
+  .modal-thumb-wrap { width: 100%; max-width: 240px; }
+}

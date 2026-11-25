@@ -1,0 +1,930 @@
+/* ==========================================================================
+   ATELIERS & MINI-JEUX INTERACTIFS — INSTRUMENTS D'ARCHÉOLOGUE (ANUBIS)
+   ========================================================================== */
+
+.workbench-modal {
+  position: relative;
+  width: 100%;
+  max-width: 880px;
+  max-height: 92dvh;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-modal);
+  animation: folioAppear 0.34s var(--ease-papyrus) forwards;
+}
+
+.workbench-header {
+  padding: 18px 54px 14px 26px;
+  background: linear-gradient(180deg, rgba(243, 228, 194, 0.94), rgba(251, 243, 223, 0.8));
+  border-bottom: 1px solid rgba(184, 130, 36, 0.46);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.workbench-title-group h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.06rem, 2vw, 1.32rem);
+  font-weight: 700;
+  color: var(--lapis-800);
+  margin: 4px 0 0;
+  letter-spacing: 0.06em;
+}
+
+.workbench-body { padding: 20px 26px 22px; overflow-y: auto; flex: 1; }
+
+.workbench-instruction {
+  font-family: var(--font-serif);
+  font-size: 1.18rem;
+  line-height: 1.48;
+  color: var(--ink-800);
+  margin: 0 0 18px;
+  padding: 11px 16px;
+  background: rgba(255, 253, 247, 0.86);
+  border-left: 3px solid var(--gold-500);
+  border-radius: 0 4px 4px 0;
+}
+
+.workbench-status {
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.92rem;
+  line-height: 1.42;
+  display: none;
+  align-items: center;
+  gap: 9px;
+}
+
+.workbench-status.is-error { display: flex; background: var(--jasper-100); border: 1px solid rgba(156, 47, 35, 0.4); color: var(--jasper-600); }
+.workbench-status.is-success { display: flex; background: var(--malachite-100); border: 1px solid rgba(29, 107, 94, 0.44); color: var(--malachite-600); font-weight: 600; }
+.workbench-status.is-info { display: flex; background: var(--lapis-100); border: 1px solid rgba(22, 59, 99, 0.25); color: var(--lapis-800); }
+
+.workbench-hint-box {
+  display: none;
+  margin-top: 12px;
+  padding: 11px 14px;
+  background: rgba(235, 197, 107, 0.2);
+  border: 1px dashed var(--gold-600);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-serif);
+  font-size: 1.06rem;
+  font-style: italic;
+  color: var(--ink-800);
+}
+
+.workbench-hint-box.is-open { display: block; }
+
+.workbench-footer {
+  padding: 13px 26px;
+  border-top: 1px solid rgba(184, 130, 36, 0.36);
+  background: rgba(243, 228, 194, 0.62);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Bandeau d'archive miniature cliquable (loupe) */
+.dial-ref-strip {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 253, 248, 0.9);
+  border: 1px solid rgba(184, 130, 36, 0.48);
+  box-shadow: 0 3px 10px rgba(33, 23, 14, 0.08);
+}
+
+.dial-ref-strip img {
+  width: 68px;
+  height: 52px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1.5px solid var(--gold-500);
+  cursor: zoom-in;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.dial-ref-strip img:hover { transform: scale(1.05); }
+.dial-ref-strip span { font-family: var(--font-serif); font-size: 1.02rem; color: var(--ink-700); line-height: 1.35; }
+
+/* ==========================================================================
+   1. POLISSAGE DE LA LENTILLE (CANVAS SABLE)
+   ========================================================================== */
+.polish-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.polish-canvas-wrap {
+  position: relative;
+  width: min(320px, 82vw);
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--gold-500);
+  box-shadow: 0 14px 36px rgba(33, 23, 14, 0.28), 0 0 0 5px rgba(212, 158, 53, 0.22);
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  background: #1d140c;
+}
+
+.polish-crystal-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.polish-glint {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255, 248, 210, 0.72) 0%, rgba(235, 197, 107, 0.22) 55%, transparent 75%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+
+.polish-glint.is-lit { opacity: 1; }
+
+.polish-canvas-wrap canvas {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.polish-meter, .glare-meter {
+  width: 100%;
+  max-width: 380px;
+}
+
+.polish-meter-head, .glare-meter-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.84rem;
+  color: var(--ink-700);
+  margin-bottom: 6px;
+}
+
+.polish-meter-head strong, .glare-meter-head strong {
+  font-family: var(--font-display);
+  color: var(--lapis-800);
+}
+
+.polish-bar, .glare-bar {
+  height: 11px;
+  border-radius: 999px;
+  background: rgba(184, 130, 36, 0.22);
+  overflow: hidden;
+  border: 1px solid rgba(184, 130, 36, 0.35);
+}
+
+.polish-bar-fill, .glare-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--gold-500), var(--lapis-700));
+  transition: width 0.14s ease;
+}
+
+/* ==========================================================================
+   2. PLACEMENT EN 3 ENCOCHES (SCARABÉES & SCEAU D'OR)
+   ========================================================================== */
+.slots-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.slots-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 16px;
+  background: linear-gradient(180deg, #faf1db 0%, #eddcba 100%);
+  border: 1.5px solid var(--gold-500);
+  border-radius: var(--radius-md);
+}
+
+.socket-slot {
+  min-height: 128px;
+  border: 2px dashed rgba(184, 130, 36, 0.6);
+  border-radius: 8px;
+  background: rgba(255, 253, 248, 0.68);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 8px;
+  cursor: pointer;
+  transition: all 0.22s var(--ease-papyrus);
+}
+
+.socket-slot.is-drop-ready {
+  border-color: var(--lapis-700);
+  background: var(--lapis-100);
+  transform: translateY(-2px);
+}
+
+.socket-slot.is-filled {
+  border-style: solid;
+  border-color: var(--gold-600);
+  background: #fffdf8;
+  box-shadow: 0 5px 14px rgba(33, 23, 14, 0.12);
+}
+
+.socket-index {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold-700);
+}
+
+.socket-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.socket-content img {
+  width: 52px;
+  height: 52px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1.5px solid var(--gold-500);
+}
+
+.socket-label {
+  font-family: var(--font-display);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--lapis-800);
+}
+
+.socket-placeholder {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.96rem;
+  color: var(--ink-500);
+}
+
+.relic-tray {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.relic-token {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 118px;
+  padding: 12px 14px;
+  background: linear-gradient(180deg, #fffdf7 0%, #f1e1bc 100%);
+  border: 1.5px solid var(--gold-600);
+  border-radius: 8px;
+  font-family: var(--font-display);
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--lapis-800);
+  box-shadow: 0 5px 14px rgba(33, 23, 14, 0.14);
+  cursor: pointer;
+  transition: all 0.2s var(--ease-papyrus);
+}
+
+.relic-token:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: var(--lapis-700);
+}
+
+.relic-token.is-selected {
+  border-color: var(--lapis-800);
+  background: var(--lapis-800);
+  color: var(--papyrus-50);
+  box-shadow: 0 8px 20px rgba(14, 39, 68, 0.32);
+}
+
+.relic-token.is-placed { opacity: 0.35; cursor: not-allowed; }
+
+.relic-token img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1.5px solid var(--gold-500);
+}
+
+/* ==========================================================================
+   3. CARTOUCHE DES SCRIBES (V·I·E) & JOYAUX PECTORAUX
+   ========================================================================== */
+.cartouche-stage, .jewels-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.cartouche-tablet {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  width: 100%;
+  max-width: 500px;
+  padding: 18px;
+  background: linear-gradient(180deg, #faf2de 0%, #ecd9b2 100%);
+  border: 2px solid var(--gold-600);
+  border-radius: 22px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 8px 22px rgba(33, 23, 14, 0.14);
+}
+
+.glyph-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 6px;
+  background: rgba(255, 253, 248, 0.85);
+  border: 1px solid rgba(184, 130, 36, 0.45);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.glyph-letter {
+  width: 54px;
+  height: 54px;
+  border-radius: 8px;
+  background: var(--lapis-800);
+  color: #fce29f;
+  border: 2px solid var(--gold-500);
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.glyph-letter.is-empty {
+  background: rgba(22, 59, 99, 0.1);
+  color: var(--ink-500);
+  border-style: dashed;
+}
+
+.glyph-caption {
+  font-family: var(--font-serif);
+  font-size: 0.94rem;
+  color: var(--ink-700);
+  text-align: center;
+}
+
+.letter-keyboard {
+  display: flex;
+  justify-content: center;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.letter-tile {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  border: 1.5px solid var(--gold-600);
+  background: linear-gradient(180deg, #fffdf8 0%, var(--papyrus-200) 100%);
+  color: var(--lapis-800);
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(33, 23, 14, 0.12);
+  transition: all 0.18s ease;
+}
+
+.letter-tile:hover {
+  background: var(--lapis-800);
+  color: #fce29f;
+  transform: translateY(-2px);
+}
+
+.jewels-sequence-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.seq-pip {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(255, 253, 248, 0.8);
+  border: 1px solid rgba(184, 130, 36, 0.45);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--ink-500);
+}
+
+.seq-pip.is-lit {
+  background: var(--lapis-800);
+  color: #fce29f;
+  border-color: var(--gold-500);
+}
+
+.pectoral-board {
+  width: 100%;
+  max-width: 540px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.jewel-medallion {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 18px 10px;
+  background: linear-gradient(180deg, #fffdf8 0%, #f1e1bc 100%);
+  border: 2px solid var(--gold-600);
+  border-radius: 12px;
+  color: var(--lapis-800);
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(33, 23, 14, 0.14);
+  transition: all 0.22s var(--ease-papyrus);
+}
+
+.jewel-medallion:hover { transform: translateY(-2px); border-color: var(--lapis-700); }
+.jewel-medallion.is-pressed { background: linear-gradient(160deg, #1b3d63, #10253f); color: #fce5a6; border-color: var(--gold-400); }
+.jewel-medallion.is-wrong { border-color: var(--jasper-600); background: var(--jasper-100); animation: shakeError 0.4s ease; }
+
+.jewel-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--gold-500);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 0.76rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   4. HOTSPOTS PHOTO (STATUES, FRESQUE PINGOUIN) & MIROIR DU GARDIEN
+   ========================================================================== */
+.hotspot-stage, .mirror-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.hotspot-frame, .mirror-arena {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 2px solid var(--gold-500);
+  box-shadow: 0 12px 34px rgba(33, 23, 14, 0.24);
+  user-select: none;
+  touch-action: none;
+}
+
+.hotspot-frame img, .mirror-arena img { display: block; width: 100%; height: auto; pointer-events: none; }
+
+.hotspot-zone {
+  position: absolute;
+  border: 2px solid rgba(235, 197, 107, 0.45);
+  background: rgba(254, 251, 242, 0.04);
+  cursor: pointer;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 8px;
+  transition: all 0.22s ease;
+}
+
+.hotspot-zone:hover, .hotspot-zone:focus-visible {
+  background: rgba(235, 197, 107, 0.2);
+  border-color: var(--gold-400);
+  outline: none;
+}
+
+.hotspot-zone.is-hit {
+  background: rgba(29, 107, 94, 0.26);
+  border-color: #4bd1ba;
+  box-shadow: inset 0 0 30px rgba(75, 209, 186, 0.5);
+}
+
+.hotspot-zone.is-miss {
+  background: rgba(156, 47, 35, 0.28);
+  border-color: var(--jasper-500);
+}
+
+.hotspot-tag {
+  background: rgba(254, 251, 242, 0.94);
+  color: var(--lapis-800);
+  border: 1px solid var(--gold-500);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.24);
+}
+
+.tap-ping {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  border: 3px solid var(--jasper-500);
+  pointer-events: none;
+  animation: pingOut 0.6s ease forwards;
+}
+
+.tap-ping.is-hit { border-color: #34a474; box-shadow: 0 0 18px rgba(52, 164, 116, 0.6); }
+
+@keyframes pingOut {
+  from { transform: translate(-50%, -50%) scale(0.4); opacity: 1; }
+  to { transform: translate(-50%, -50%) scale(1.65); opacity: 0; }
+}
+
+.mirror-ray-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.mirror-target-hint {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1.5px dashed rgba(255, 224, 128, 0.45);
+  pointer-events: none;
+}
+
+.mirror-beam {
+  position: absolute;
+  width: 68px;
+  height: 68px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 3px solid var(--gold-400);
+  background: radial-gradient(circle, rgba(255, 252, 220, 0.78) 0%, rgba(235, 197, 107, 0.26) 55%, transparent 75%);
+  box-shadow: 0 0 28px rgba(255, 224, 128, 0.68);
+  pointer-events: none;
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.mirror-beam.is-locked {
+  box-shadow: 0 0 42px rgba(255, 240, 160, 0.95);
+  border-color: #ffffff;
+}
+
+/* ==========================================================================
+   5. ANNEAUX ROTATIFS EN BRONZE / OR (216, 911)
+   ========================================================================== */
+.dial-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.dial-wheels {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 20px 26px;
+  background: linear-gradient(180deg, #faf2df 0%, #ecdab4 100%);
+  border: 1.5px solid var(--gold-600);
+  border-radius: var(--radius-md);
+}
+
+.dial-wheel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.dial-label {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold-700);
+}
+
+.dial-arrow {
+  width: 58px;
+  height: 30px;
+  border-radius: 5px;
+  border: 1px solid rgba(184, 130, 36, 0.58);
+  background: linear-gradient(180deg, #fffdf8, var(--papyrus-200));
+  color: var(--lapis-800);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dial-arrow:hover { background: var(--lapis-800); color: #fff; }
+
+.dial-drum {
+  width: 58px;
+  height: 64px;
+  border-radius: 7px;
+  background: linear-gradient(180deg, #1b3f68 0%, #0f2744 50%, #19385d 100%);
+  border: 2px solid var(--gold-500);
+  color: #fce29f;
+  font-family: var(--font-display);
+  font-size: 1.85rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+/* ==========================================================================
+   6. BALANCE DE MAÂT ANIMÉE (42)
+   ========================================================================== */
+.scale-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.scale-svg-wrap {
+  width: 100%;
+  max-width: 440px;
+  padding: 12px;
+  background: linear-gradient(180deg, #faf2de 0%, #ecd9b2 100%);
+  border: 1.5px solid var(--gold-500);
+  border-radius: var(--radius-md);
+  display: flex;
+  justify-content: center;
+}
+
+.scale-svg-wrap svg { max-width: 100%; height: auto; }
+
+.scale-readout {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.scale-pill, .star-chip {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 253, 248, 0.9);
+  border: 1px solid rgba(184, 130, 36, 0.48);
+  font-size: 0.84rem;
+  color: var(--ink-700);
+}
+
+.scale-pill strong, .star-chip strong {
+  font-family: var(--font-display);
+  color: var(--lapis-800);
+}
+
+.feathers-grid {
+  width: 100%;
+  max-width: 560px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.feather-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 8px;
+  background: rgba(255, 253, 248, 0.92);
+  border: 1px solid rgba(184, 130, 36, 0.48);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.feather-name { font-family: var(--font-display); font-size: 0.8rem; font-weight: 700; color: var(--lapis-800); }
+.feather-val { font-size: 0.76rem; color: var(--ink-500); }
+.feather-stepper { display: inline-flex; align-items: center; gap: 8px; margin-top: 2px; }
+.feather-count { min-width: 18px; font-family: var(--font-display); font-weight: 700; color: var(--ink-900); }
+
+.step-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 5px;
+  border: 1px solid var(--gold-600);
+  background: var(--papyrus-100);
+  color: var(--lapis-800);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.step-btn:hover { background: var(--lapis-800); color: #fff; }
+
+/* ==========================================================================
+   7. RÉSERVOIR DU NIL (JARRES 5L & 3L -> CONDUIT 4L)
+   ========================================================================== */
+.jugs-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.jugs-visual-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: clamp(16px, 4vw, 34px);
+  padding: 18px 24px;
+  width: 100%;
+  max-width: 560px;
+  background: linear-gradient(180deg, #faf3e1 0%, #ede0be 100%);
+  border: 1.5px solid var(--gold-500);
+  border-radius: var(--radius-md);
+}
+
+.jug-box { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+
+.jug-vessel {
+  position: relative;
+  width: 92px;
+  height: 150px;
+  border-radius: 8px 8px 16px 16px;
+  border: 2.5px solid var(--gold-600);
+  background: linear-gradient(90deg, rgba(255,255,255,0.6), rgba(226,243,250,0.88), rgba(255,255,255,0.5));
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 14px rgba(22, 59, 99, 0.14), 0 6px 14px rgba(33, 23, 14, 0.12);
+}
+
+.jug-vessel.is-small { width: 78px; height: 106px; }
+.jug-vessel.is-conduit { width: 96px; height: 132px; border-color: var(--lapis-700); }
+
+.jug-water {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(180deg, #2d8fb8 0%, #154e77 100%);
+  transition: height 0.45s var(--ease-papyrus);
+}
+
+.jug-amount {
+  position: relative;
+  z-index: 2;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(254, 251, 242, 0.9);
+  color: var(--lapis-800);
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.jug-title { font-family: var(--font-display); font-size: 0.74rem; font-weight: 700; color: var(--ink-700); text-transform: uppercase; }
+
+.jugs-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(150px, 1fr));
+  gap: 8px;
+  width: 100%;
+  max-width: 520px;
+}
+
+.jug-action-btn {
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(184, 130, 36, 0.56);
+  background: linear-gradient(180deg, #fffdf8 0%, var(--papyrus-200) 100%);
+  color: var(--ink-900);
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.jug-action-btn:hover { border-color: var(--lapis-700); color: var(--lapis-800); background: #fff; }
+
+.jug-action-btn.is-pour-conduit {
+  background: linear-gradient(180deg, var(--lapis-700) 0%, var(--lapis-800) 100%);
+  color: var(--papyrus-50);
+  border-color: var(--gold-500);
+}
+
+.jug-action-btn.is-pour-conduit:hover { background: var(--lapis-700); color: #fff; }
+
+/* ==========================================================================
+   8. RAMPE PYRAMIDE (60°) & HORLOGE STELLAIRE (SIRIUS 12H)
+   ========================================================================== */
+.ramp-stage, .star-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.ramp-svg-wrap, .star-wheel-wrap {
+  padding: 14px 18px;
+  background: linear-gradient(180deg, #faf2df 0%, #ecdbb4 100%);
+  border: 1.5px solid var(--gold-500);
+  border-radius: var(--radius-md);
+  display: flex;
+  justify-content: center;
+}
+
+.ramp-svg-wrap svg, .star-wheel-wrap svg { max-width: 100%; height: auto; }
+
+.ramp-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.ramp-slider-row input[type="range"] {
+  flex: 1;
+  accent-color: var(--lapis-800);
+  cursor: pointer;
+}
+
+.ramp-deg-badge {
+  min-width: 56px;
+  text-align: center;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: var(--lapis-800);
+  color: #fce29f;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.star-readout {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media (max-width: 720px) {
+  .workbench-body { padding: 14px 16px 18px; }
+  .workbench-header { padding: 14px 48px 12px 16px; }
+  .workbench-footer { padding: 12px 16px; }
+  .slots-row, .pectoral-board, .cartouche-tablet { grid-template-columns: 1fr; }
+  .feathers-grid { grid-template-columns: repeat(2, 1fr); }
+  .jugs-controls { grid-template-columns: 1fr; }
+}
