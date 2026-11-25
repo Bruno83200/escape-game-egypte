@@ -1,55 +1,163 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>L'Héritage d'Anubis - Accueil</title>
-    <!-- On garde les mêmes polices "Cinzel" et "Crimson" qui vont très bien avec l'Égypte -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Text&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>L'Héritage d'Anubis — Le Tombeau Perdu (Expédition 1920)</title>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/auth.css" />
 </head>
-<body>
-    <div class="bg-accueil"></div> <!-- On mettra une image de pyramide/temple ici plus tard -->
-    <div class="bg-overlay"></div>
+<body class="auth-page">
+  <div class="auth-bg-photo" aria-hidden="true"></div>
+  <div class="auth-bg-wash" aria-hidden="true"></div>
 
-    <!-- MODALE PARCHEMIN -->
-    <div id="custom-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div id="modal-text"></div>
-            <div id="modal-input-area">
-                <input type="text" id="modal-input-field">
-            </div>
-            <button id="modal-btn" class="btn-modal">Continuer</button>
+  <div class="auth-stage">
+    <header class="auth-topbar">
+      <div class="auth-coords">
+        <span class="dot"></span>
+        <span>Plateau de Gizeh · 29°58′45″ N · 31°08′03″ E</span>
+      </div>
+      <div class="auth-coords">
+        <span>Expédition Archéologique · 1920</span>
+      </div>
+    </header>
+
+    <main class="auth-main">
+      <section class="hero-editorial">
+        <div class="hero-emblem-row">
+          <!-- Emblème géométrique : Ankh & Disque Solaire -->
+          <svg class="ankh-emblem" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="32" cy="18" r="10" fill="rgba(235,197,107,0.14)" />
+            <path d="M32 28v28M20 35h24" stroke-linecap="round" />
+            <path d="M8 18h10M46 18h10" stroke-opacity="0.55" stroke-linecap="round" />
+            <circle cx="32" cy="18" r="3" fill="currentColor" />
+          </svg>
+          <span class="hero-kicker">Escape Game Archéologique Interactif</span>
         </div>
+
+        <h1 class="hero-title">L'HÉRITAGE<br />D'ANUBIS</h1>
+        <p class="hero-subtitle">LE TOMBEAU PERDU — EXPÉDITION 1920</p>
+
+        <p class="hero-lead">
+          « La dalle s'est refermée sur l'antichambre scellée depuis trois millénaires.
+          Ouvrez votre carnet d'archéologue, déchiffrez les papyrus et traversez les quatorze épreuves du sanctuaire pour retrouver le soleil de Gizeh. »
+        </p>
+
+        <div class="hero-zones-preview" aria-label="Les 4 chapitres du tombeau">
+          <span class="zone-pill"><strong>I.</strong> L'Antichambre</span>
+          <span class="zone-pill"><strong>II.</strong> Couloir des Malédictions</span>
+          <span class="zone-pill"><strong>III.</strong> Épreuves Sacrées</span>
+          <span class="zone-pill"><strong>IV.</strong> Le Sarcophage Royal</span>
+        </div>
+      </section>
+
+      <!-- Carnet d'Accréditation Archéologique (Connexion obligatoire Firebase) -->
+      <section class="accreditation-card papyrus-surface cartouche-frame" aria-labelledby="form-title">
+        <span class="card-corner tl" aria-hidden="true"></span>
+        <span class="card-corner tr" aria-hidden="true"></span>
+        <span class="card-corner bl" aria-hidden="true"></span>
+        <span class="card-corner br" aria-hidden="true"></span>
+
+        <div class="card-stamp-header">
+          <div class="folio-tag">Institut Royal d'Égyptologie · 1920</div>
+          <h2 id="form-title">REJOINDRE L'EXPÉDITION</h2>
+          <p id="form-subtitle">Enregistrez votre carnet de fouilles pour sauvegarder votre avancée</p>
+        </div>
+
+        <div class="auth-tabs" role="tablist">
+          <button type="button" class="auth-tab is-active" id="tab-register" role="tab" aria-selected="true">
+            Nouvel Explorateur
+          </button>
+          <button type="button" class="auth-tab" id="tab-login" role="tab" aria-selected="false">
+            Déjà Inscrit
+          </button>
+        </div>
+
+        <form id="auth-form" novalidate>
+          <div id="group-pseudo" class="field-group">
+            <label for="pseudo">
+              <span>Nom de l'explorateur</span>
+              <span class="field-hint">Gravé sur la Liste des Archéologues</span>
+            </label>
+            <div class="input-wrap">
+              <input type="text" id="pseudo" class="field-input" placeholder="Ex : Howard Carter" autocomplete="nickname" />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="email">
+              <span>Courrier de l'Académie</span>
+              <span class="field-hint">Adresse email</span>
+            </label>
+            <div class="input-wrap">
+              <input type="email" id="email" class="field-input" placeholder="professeur@academie.fr" autocomplete="email" required />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="password">
+              <span>Code secret</span>
+              <span class="field-hint">6 caractères minimum</span>
+            </label>
+            <div class="input-wrap">
+              <input type="password" id="password" class="field-input has-toggle" placeholder="••••••••" autocomplete="current-password" required />
+              <button type="button" class="password-toggle" id="toggle-password" aria-label="Afficher ou masquer le mot de passe">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18">
+                  <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div id="auth-feedback" class="auth-feedback" role="alert"></div>
+
+          <button type="submit" class="btn-lapis submit-btn-full" id="submit-auth">
+            <span>Pénétrer dans le Tombeau</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M13 5l7 7-7 7" />
+            </svg>
+          </button>
+        </form>
+
+        <div class="auth-footer-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
+          </svg>
+          <span>Progression synchronisée · Accès par compte Académie</span>
+        </div>
+      </section>
+    </main>
+
+    <footer class="auth-bottombar">
+      <div class="auth-credits">© 2026 — Imaginé et créé par Bruno CULOT</div>
+      <div class="auth-badge-photo">Expédition 1920 · 14 Épreuves Interactives</div>
+    </footer>
+  </div>
+
+  <!-- Modale papyrus d'accueil -->
+  <div id="custom-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title-text">
+    <div class="papyrus-modal papyrus-surface cartouche-frame">
+      <div class="modal-header-tag">
+        <span id="modal-kicker" class="folio-tag">Sceau de l'Académie</span>
+      </div>
+      <h3 class="modal-title" id="modal-title-text">Carnet d'Expédition</h3>
+      <div class="modal-body-row stacked">
+        <div id="modal-thumb-wrap" class="modal-thumb-wrap" style="display:none;">
+          <img id="modal-illustration" src="" alt="Archive" />
+        </div>
+        <div id="modal-text" class="modal-prose"></div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" id="modal-btn" class="btn-lapis">Continuer</button>
+      </div>
     </div>
+  </div>
 
-    <div class="container">
-        <div class="header-titles">
-            <h1>L'HÉRITAGE D'ANUBIS</h1>
-            <div class="subtitle">LE TOMBEAU PERDU - EXPÉDITION 1920</div>
-        </div>
-
-        <div class="auth-card">
-            <h2 id="form-title">REJOINDRE L'EXPÉDITION</h2>
-            <div class="input-group" id="group-pseudo">
-                <label>Nom de l'explorateur</label>
-                <input type="text" id="pseudo" placeholder="Ex: Howard Carter">
-            </div>
-            <div class="input-group">
-                <label>Courrier de l'Académie (Email)</label>
-                <input type="email" id="email" placeholder="votre@email.com">
-            </div>
-            <div class="input-group">
-                <label>Code secret (Mot de passe)</label>
-                <input type="password" id="password" placeholder="********">
-            </div>
-            <button class="btn-main" id="submit-auth">PÉNÉTRER DANS LE TOMBEAU</button>
-            <div class="toggle-auth" id="toggle-link">Déjà inscrit ? Se connecter</div>
-        </div>
-        
-        <div class="credits">© 2026 - Imaginé et créé par Bruno CULOT</div>
-    </div>
-
-    <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/auth.js"></script>
 </body>
 </html>
